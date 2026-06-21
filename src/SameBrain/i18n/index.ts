@@ -85,6 +85,10 @@ const STRINGS: Record<string, Loc> = {
   wallEmptyOpen: { en: 'Open in Aigram to see strangers sync.', zh: '在 Aigram 里打开，看陌生人同步', es: 'Abre en Aigram para ver mentes en sync.', pt: 'Abra no Aigram para ver mentes em sync.' },
   wallEmptyFirst: { en: 'No twins yet — you could be the first.', zh: '还没有双胞胎，你可以当第一个', es: 'Aún no hay gemelos — sé el primero.', pt: 'Ainda não há gêmeos — seja o primeiro.' },
   retry: { en: 'That vision slipped away. Try again.', zh: '这幅画跑掉了，再试一次', es: 'Esa visión se escapó. Inténtalo de nuevo.', pt: 'Essa visão escapou. Tente de novo.' },
+  alterEgoHead: { en: 'Meet your alter ego', zh: '遇见另一个你', es: 'Conoce a tu álter ego', pt: 'Conheça seu alter ego' },
+  alterEgoLine: { en: 'Your alter ego pictured it too.', zh: '另一个你也是这么想的。', es: 'Tu álter ego también lo imaginó así.', pt: 'Seu alter ego também imaginou assim.' },
+  alterEgoLabel: { en: 'Your alter ego', zh: '另一个你', es: 'Tu álter ego', pt: 'Seu alter ego' },
+  alterEgoHint: { en: 'Strangers who think like you are coming. We’ll ping you when one syncs.', zh: '和你想到一块儿的陌生人正在路上，有人撞中会通知你。', es: 'Pronto llegarán desconocidos que piensan como tú. Te avisaremos.', pt: 'Em breve chegarão estranhos que pensam como você. Avisaremos.' },
 };
 
 export function t(key: keyof typeof STRINGS): string {

@@ -13,13 +13,16 @@ export interface Vision {
   /** gen-image result URL (the beautiful surface). */
   imageUrl: string;
   createdAt: number;
-  /** Set when this vision belongs to a stranger (wall) or a phantom seed. */
+  /** Set when this vision belongs to a real stranger (from the wall). */
   userId?: string;
   userName?: string;
   /** Either an https avatar url or an emoji glyph. */
   userAvatarUrl?: string;
-  /** True for cold-start phantom partners (no real notify target). */
-  phantom?: boolean;
+  /** True when the partner is the player's own AI alter ego — the honest
+   *  cold-start fallback shown until a real stranger twin exists. Never a
+   *  fabricated user: it's the player themselves, so it has no profile to open
+   *  and never triggers a notify. */
+  alterEgo?: boolean;
 }
 
 export interface Match {

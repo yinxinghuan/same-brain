@@ -66,8 +66,10 @@ export function bestWallMatch(
   };
 }
 
-/** Make a phantom vector that shares all-but-one dimension with mine (3/4). */
-export function phantomVector(mine: Vector, optionCounts: number[]): Vector {
+/** Make a variant vector that shares all-but-one dimension with mine (3/4) —
+ *  used for the player's alter-ego twin (the same vision, seen a little
+ *  differently). */
+export function variantVector(mine: Vector, optionCounts: number[]): Vector {
   const vec = [...mine];
   const flip = Math.floor(Math.random() * vec.length);
   const count = optionCounts[flip] ?? 6;

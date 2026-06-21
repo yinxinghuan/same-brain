@@ -19,7 +19,16 @@ function Avatar({ vision, size = 22 }: { vision: Vision; size?: number }) {
 }
 
 function PartnerChip({ vision, accent }: { vision: Vision; accent?: boolean }) {
-  const tappable = !vision.phantom && !!vision.userId;
+  // The alter ego is the player themselves — a self entry, no profile to open.
+  if (vision.alterEgo) {
+    return (
+      <span className={'sb-chip' + (accent ? ' sb-chip--accent' : '')}>
+        <span className="sb-ava sb-aiself"><Icon name="brain" size={13} /></span>
+        <span className="sb-chip__name">{t('alterEgoLabel')}</span>
+      </span>
+    );
+  }
+  const tappable = !!vision.userId;
   const body = (
     <>
       <Avatar vision={vision} size={22} />
@@ -176,7 +185,7 @@ function Reveal({
   const { partner, sync } = match;
   return (
     <div className="sb-reveal">
-      <div className="sb-reveal__head">{t('youMatched')}</div>
+      <div className="sb-reveal__head">{partner.alterEgo ? t('alterEgoHead') : t('youMatched')}</div>
       <div className="sb-pair sb-pair--reveal">
         <div className="sb-slot sb-slot--mine">
           <img className="sb-slot__img" src={mine.imageUrl} alt="" />
@@ -194,9 +203,16 @@ function Reveal({
         </div>
       </div>
       <div className="sb-reveal__line">
-        {t('syncedWith')} <strong>{partner.userName}</strong>
+        {partner.alterEgo ? (
+          t('alterEgoLine')
+        ) : (
+          <>
+            {t('syncedWith')} <strong>{partner.userName}</strong>
+          </>
+        )}
       </div>
       <div className="sb-reveal__vec">{vectorLabel(prompt, mine.vector)}</div>
+      {partner.alterEgo && <div className="sb-reveal__hint">{t('alterEgoHint')}</div>}
       <div className="sb-actions">
         <button className="sb-btn sb-btn--primary" onPointerDown={onAgain}>
           {t('again')}

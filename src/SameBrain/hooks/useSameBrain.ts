@@ -7,13 +7,12 @@ import {
 } from '@shared/runtime';
 import { useGameSave } from '@shared/save';
 import { todaysPrompt } from '../data/prompts';
-import { randomRoster } from '../data/roster';
 import { composePrompt } from '../utils/compose';
 import {
   bestWallMatch,
-  phantomVector,
   sharedDims,
   syncScore,
+  variantVector,
 } from '../utils/match';
 import type { Match, Phase, SameBrainSave, Vector, Vision } from '../types';
 import { useWall } from './useWall';
@@ -83,24 +82,29 @@ export function useSameBrain() {
         };
         setMyVision(mine);
 
-        // 2) partner — prefer a real stranger who shares >= 2 dims, else conjure one
+        // Match against REAL strangers on the wall — best available, any overlap.
         let m = bestWallMatch(mine, wallRef.current, telegramId);
-        if (!m || m.sharedDims < 2) {
+
+        // No real twin yet → the player's own AI ALTER EGO (this is YOU, never a
+        // fabricated user). Works everywhere with no wall and no fake identity; the
+        // chip is a self entry, so there's no profile to open and no notify. Real
+        // strangers replace it automatically as the wall fills up.
+        if (!m) {
           const counts = prompt.dims.map(d => d.options.length);
-          const pv = phantomVector(vec, counts);
+          const pv = variantVector(vec, counts);
           const purl = await genWithRetry(composePrompt(prompt, pv));
           const partner: Vision = {
-            id: 'phantom-' + uid(),
+            id: 'alterego-' + uid(),
             promptId: prompt.id,
             vector: pv,
             imageUrl: purl,
             createdAt: Date.now(),
-            userName: randomRoster(),
-            phantom: true,
+            alterEgo: true,
           };
           const sh = sharedDims(vec, pv);
           m = { partner, sharedDims: sh, sync: syncScore(sh, mine.id + partner.id) };
         }
+
         setMatch(m);
         setPhase('reveal');
 
@@ -116,9 +120,9 @@ export function useSameBrain() {
           return next;
         });
 
-        // 4) notify a REAL partner that a brain just synced with theirs
+        // 4) notify a REAL partner (never the alter ego — that's the player)
         if (
-          !m.partner.phantom &&
+          !m.partner.alterEgo &&
           m.partner.userId &&
           m.partner.userId !== telegramId &&
           !notified.current.has(m.partner.userId)
