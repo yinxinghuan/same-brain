@@ -9,16 +9,19 @@ export function sharedDims(a: Vector, b: Vector): number {
   return n;
 }
 
-// Sync% bands per number of shared dimensions (out of 4). We always reveal the
-// BEST available partner and frame it positively — but never a fake 100, and
-// never a flat round number, so it reads as organic rather than computed.
-const BANDS: Record<number, [number, number]> = {
-  4: [94, 99],
-  3: [80, 91],
-  2: [66, 78],
-  1: [50, 62],
-  0: [40, 48],
-};
+// Sync% band by FRACTION of dimensions shared, so it works for any dim count
+// (prompts can have 4, 5, … dims). We always reveal the BEST available partner
+// and frame it positively — but never a fake 100, and never a flat round
+// number, so it reads as organic rather than computed.
+function bandFor(frac: number): [number, number] {
+  if (frac >= 0.999) return [94, 99];
+  if (frac >= 0.75) return [82, 92];
+  if (frac >= 0.6) return [72, 83];
+  if (frac >= 0.5) return [64, 76];
+  if (frac >= 0.34) return [55, 67];
+  if (frac >= 0.2) return [48, 59];
+  return [40, 50];
+}
 
 /** Deterministic jitter from two ids so the same pairing always shows the same %. */
 function jitter(seed: string): number {
@@ -30,8 +33,8 @@ function jitter(seed: string): number {
   return ((h >>> 0) % 1000) / 1000; // 0..1
 }
 
-export function syncScore(shared: number, seed: string): number {
-  const [lo, hi] = BANDS[shared] ?? BANDS[0];
+export function syncScore(shared: number, total: number, seed: string): number {
+  const [lo, hi] = bandFor(total > 0 ? shared / total : 0);
   return Math.round(lo + jitter(seed) * (hi - lo));
 }
 
@@ -62,7 +65,7 @@ export function bestWallMatch(
   return {
     partner: best,
     sharedDims: bestShared,
-    sync: syncScore(bestShared, mine.id + best.id),
+    sync: syncScore(bestShared, Math.min(mine.vector.length, best.vector.length), mine.id + best.id),
   };
 }
 
@@ -90,7 +93,8 @@ export function twinsOf(target: Vision, wall: Vision[], minShared = 2): Twin[] {
     )
     .map(v => {
       const shared = sharedDims(target.vector, v.vector);
-      return { vision: v, shared, sync: syncScore(shared, target.id + v.id) };
+      const total = Math.min(target.vector.length, v.vector.length);
+      return { vision: v, shared, sync: syncScore(shared, total, target.id + v.id) };
     })
     .filter(t => t.shared >= minShared)
     .sort((a, b) => b.shared - a.shared || b.sync - a.sync);

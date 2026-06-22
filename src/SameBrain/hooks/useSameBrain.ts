@@ -193,7 +193,7 @@ export function useSameBrain() {
             alterEgo: true,
           };
           const sh = sharedDims(vec, pv);
-          m = { partner, sharedDims: sh, sync: syncScore(sh, mine.id + partner.id) };
+          m = { partner, sharedDims: sh, sync: syncScore(sh, vec.length, mine.id + partner.id) };
         }
 
         setMatch(m);

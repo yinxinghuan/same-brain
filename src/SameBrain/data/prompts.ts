@@ -102,9 +102,21 @@ export const PROMPTS: BrainPrompt[] = [
           o('comet', 'Comet', '彗星', 'Cometa', 'Cometa', 'a comet streaking across the night sky'),
         ],
       },
+      {
+        key: 'view',
+        ask: ask('The view outside?', '窗外是什么？', '¿La vista afuera?', 'A vista lá fora?'),
+        options: [
+          o('citynight', 'City', '都市', 'Ciudad', 'Cidade', 'a glittering city skyline outside the windows'),
+          o('coast', 'Ocean', '海洋', 'Océano', 'Oceano', 'an endless moonlit ocean outside the windows'),
+          o('forest', 'Forest', '森林', 'Bosque', 'Floresta', 'a misty ancient forest outside the windows'),
+          o('desert', 'Desert', '沙漠', 'Desierto', 'Deserto', 'rolling desert dunes outside the windows'),
+          o('mountains', 'Mountains', '山脉', 'Montañas', 'Montanhas', 'snowy mountain peaks outside the windows'),
+          o('starfield', 'Stars', '星空', 'Estrellas', 'Estrelas', 'a vast field of stars outside the windows'),
+        ],
+      },
     ],
-    compose: ([place, color, object, light]) =>
-      `A secret hideout: ${place}, ${color}, featuring ${object}, ${light}. ${STYLE}`,
+    compose: ([place, color, object, light, view]) =>
+      `A secret hideout: ${place}, ${color}, featuring ${object}, ${light}, ${view}. ${STYLE}`,
   },
 
   {
@@ -172,9 +184,21 @@ export const PROMPTS: BrainPrompt[] = [
           o('rainstorm', 'Rainstorm', '暴雨', 'Tormenta', 'Tempestade', 'speeding through a pouring rainstorm'),
         ],
       },
+      {
+        key: 'hour',
+        ask: ask('What time is it?', '几点了？', '¿Qué hora es?', 'Que horas são?'),
+        options: [
+          o('sun-golden', 'Golden hour', '黄昏', 'Hora dorada', 'Hora dourada', 'at warm golden hour'),
+          o('moon3am', '3am', '凌晨', 'Las 3am', '3h da manhã', 'under a 3am moon'),
+          o('dusk', 'Dusk', '黄昏', 'Atardecer', 'Crepúsculo', 'at hazy violet dusk'),
+          o('storm', 'Storm', '雷暴', 'Tormenta', 'Tempestade', 'in the middle of a thunderstorm'),
+          o('fog', 'Fog', '晨雾', 'Niebla', 'Névoa', 'through low morning fog'),
+          o('aurora', 'Aurora', '极光', 'Aurora', 'Aurora', 'beneath a glowing aurora'),
+        ],
+      },
     ],
-    compose: ([vehicle, color, detail, setting]) =>
-      `${color} ${vehicle}, ${detail}, ${setting}. ${STYLE}`,
+    compose: ([vehicle, color, detail, setting, hour]) =>
+      `${color} ${vehicle}, ${detail}, ${setting}, ${hour}. ${STYLE}`,
   },
 
   {
@@ -242,9 +266,189 @@ export const PROMPTS: BrainPrompt[] = [
           o('brooding', 'Brooding', '阴郁', 'Sombrío', 'Melancólico', 'brooding and storm-tempered'),
         ],
       },
+      {
+        key: 'realm',
+        ask: ask('Where does it roam?', '它栖息在哪？', '¿Dónde habita?', 'Onde habita?'),
+        options: [
+          o('forest', 'Forest', '森林', 'Bosque', 'Floresta', 'in an ancient moonlit forest'),
+          o('mountains', 'Peaks', '高山', 'Cumbres', 'Cumes', 'among towering snowy peaks'),
+          o('starfield', 'Cosmos', '星海', 'Cosmos', 'Cosmos', 'drifting among the stars'),
+          o('desert', 'Desert', '荒漠', 'Desierto', 'Deserto', 'across an endless desert'),
+          o('coast', 'Coast', '海岸', 'Costa', 'Costa', 'along a wild crashing coast'),
+          o('citynight', 'City', '都市', 'Ciudad', 'Cidade', 'prowling a neon-lit city'),
+        ],
+      },
     ],
-    compose: ([creature, element, color, mood]) =>
-      `${creature}, ${mood}, ${element}, ${color}, epic fantasy portrait. ${STYLE}`,
+    compose: ([creature, element, color, mood, realm]) =>
+      `${creature}, ${mood}, ${element}, ${color}, ${realm}, epic fantasy portrait. ${STYLE}`,
+  },
+
+  {
+    id: 'power',
+    setup: {
+      en: 'Your alter ego has one secret superpower…',
+      zh: '你那个「另一个自己」有一项秘密超能力…',
+      es: 'Tu álter ego tiene un superpoder secreto…',
+      pt: 'Seu alter ego tem um superpoder secreto…',
+    },
+    dims: [
+      {
+        key: 'power',
+        ask: ask("What's the power?", '是什么能力？', '¿Cuál es el poder?', 'Qual é o poder?'),
+        options: [
+          o('flight', 'Flight', '飞行', 'Vuelo', 'Voo', 'soaring in flight high above the clouds'),
+          o('teleport', 'Teleport', '瞬移', 'Teletransporte', 'Teletransporte', 'vanishing through a swirling teleport portal'),
+          o('firebolt', 'Firebolt', '火焰', 'Bola de fuego', 'Bola de fogo', 'hurling a firebolt from an open palm'),
+          o('timestop', 'Time stop', '停止时间', 'Parar el tiempo', 'Parar o tempo', 'freezing time to a standstill'),
+          o('invisible', 'Invisible', '隐身', 'Invisible', 'Invisível', 'fading into total invisibility'),
+          o('telekinesis', 'Telekinesis', '念力', 'Telequinesis', 'Telecinese', 'lifting objects with telekinesis'),
+          o('shapeshift', 'Shapeshift', '变形', 'Metamorfosis', 'Metamorfose', 'shapeshifting into another form mid-morph'),
+          o('mindwave', 'Mind reading', '读心', 'Leer la mente', 'Ler a mente', 'sending out psychic mind-reading waves'),
+        ],
+      },
+      {
+        key: 'aura',
+        ask: ask('Aura color?', '光环颜色？', '¿Color del aura?', 'Cor da aura?'),
+        options: [
+          col('pink', 'a hot pink aura'),
+          col('cyan', 'an electric cyan aura'),
+          col('gold', 'a golden aura'),
+          col('crimson', 'a crimson aura'),
+          col('violet', 'a cosmic violet aura'),
+          col('jade', 'a jade-green aura'),
+          col('mint', 'a soft mint aura'),
+          col('noir', 'a stark black-and-white aura'),
+        ],
+      },
+      {
+        key: 'source',
+        ask: ask('Fueled by?', '由什么驱动？', '¿Alimentado por?', 'Alimentado por?'),
+        options: [
+          o('fire', 'Fire', '烈火', 'Fuego', 'Fogo', 'fueled by crackling fire'),
+          o('lightning', 'Lightning', '闪电', 'Rayo', 'Raio', 'fueled by lightning'),
+          o('frost', 'Frost', '寒霜', 'Escarcha', 'Geada', 'fueled by biting frost'),
+          o('moonlight', 'Moonlight', '月光', 'Luz de luna', 'Luar', 'fueled by moonlight'),
+          o('bloom', 'Bloom', '花海', 'Floración', 'Floração', 'fueled by blooming flowers'),
+          o('embers', 'Embers', '余烬', 'Brasas', 'Brasas', 'fueled by glowing embers'),
+          o('stardust', 'Stardust', '星尘', 'Polvo estelar', 'Poeira estelar', 'fueled by cosmic stardust'),
+          o('water', 'Water', '流水', 'Agua', 'Água', 'fueled by surging water'),
+        ],
+      },
+      {
+        key: 'sigil',
+        ask: ask('Their emblem?', '他们的徽记？', '¿Su emblema?', 'O emblema deles?'),
+        options: [
+          o('sigilstar', 'Star', '星徽', 'Estrella', 'Estrela', 'a glowing star emblem'),
+          o('sigileye', 'Eye', '神眼', 'Ojo', 'Olho', 'a glowing all-seeing eye emblem'),
+          o('sigilcrown', 'Crown', '王冠', 'Corona', 'Coroa', 'a glowing crown emblem'),
+          o('sigilspiral', 'Spiral', '螺旋', 'Espiral', 'Espiral', 'a glowing spiral emblem'),
+          o('sigilwings', 'Wings', '羽翼', 'Alas', 'Asas', 'a glowing winged emblem'),
+          o('skull', 'Skull', '骷髅', 'Calavera', 'Caveira', 'a glowing skull emblem'),
+          o('lightning', 'Bolt', '雷纹', 'Rayo', 'Raio', 'a glowing lightning-bolt emblem'),
+          o('moon3am', 'Moon', '弦月', 'Luna', 'Lua', 'a glowing crescent-moon emblem'),
+        ],
+      },
+      {
+        key: 'vibe',
+        ask: ask('The vibe?', '什么气场？', '¿La onda?', 'A vibe?'),
+        options: [
+          o('regal', 'Regal', '威严', 'Majestuoso', 'Majestoso', 'regal and unstoppable'),
+          o('fierce', 'Fierce', '凶悍', 'Feroz', 'Feroz', 'fierce and battle-ready'),
+          o('serene', 'Serene', '安宁', 'Sereno', 'Sereno', 'serene and untouchable'),
+          o('mischief', 'Mischief', '狡黠', 'Travieso', 'Travesso', 'mischievous and sly'),
+          o('dreamy', 'Dreamy', '梦幻', 'Soñador', 'Sonhador', 'dreamy and otherworldly'),
+          o('mystery', 'Mystery', '神秘', 'Misterio', 'Mistério', 'mysterious and masked'),
+          o('playful', 'Playful', '顽皮', 'Juguetón', 'Brincalhão', 'playful and full of energy'),
+          o('brooding', 'Brooding', '阴郁', 'Sombrío', 'Melancólico', 'brooding and storm-tempered'),
+        ],
+      },
+    ],
+    compose: ([power, aura, source, sigil, vibe]) =>
+      `An epic superhero portrait: a figure using the power of ${power}, ${vibe}, wrapped in ${aura}, fueled by ${source}, their ${sigil} glowing. ${STYLE}`,
+  },
+
+  {
+    id: 'world',
+    setup: {
+      en: 'Your alter ego comes from another world. It\'s…',
+      zh: '你那个「另一个自己」来自另一个世界，那里…',
+      es: 'Tu álter ego viene de otro mundo. Es…',
+      pt: 'Seu alter ego vem de outro mundo. É…',
+    },
+    dims: [
+      {
+        key: 'terrain',
+        ask: ask('The land?', '是什么地貌？', '¿La tierra?', 'A terra?'),
+        options: [
+          o('mountains', 'Mountains', '高山', 'Montañas', 'Montanhas', 'jagged snowy mountains'),
+          o('forest', 'Forest', '森林', 'Bosque', 'Floresta', 'a vast ancient forest'),
+          o('desert', 'Desert', '沙漠', 'Desierto', 'Deserto', 'rolling endless desert dunes'),
+          o('coast', 'Coast', '海岸', 'Costa', 'Costa', 'a wild crashing coastline'),
+          o('starfield', 'Cosmos', '星海', 'Cosmos', 'Cosmos', 'a star-strewn cosmic expanse'),
+          o('seadome', 'Undersea', '海底', 'Submarino', 'Submarino', 'a glowing undersea world'),
+          o('volcano', 'Volcanoes', '火山', 'Volcanes', 'Vulcões', 'an erupting volcanic range'),
+          o('floatingisland', 'Sky isles', '浮空岛', 'Islas flotantes', 'Ilhas flutuantes', 'floating islands in the sky'),
+        ],
+      },
+      {
+        key: 'sky',
+        ask: ask("The sky's color?", '天空什么颜色？', '¿Color del cielo?', 'Cor do céu?'),
+        options: [
+          col('pink', 'under a hot pink sky'),
+          col('cyan', 'under an electric cyan sky'),
+          col('gold', 'under a golden sky'),
+          col('crimson', 'under a crimson sky'),
+          col('violet', 'under a cosmic violet sky'),
+          col('jade', 'under a jade-green sky'),
+          col('mint', 'under a soft mint sky'),
+          col('noir', 'under a stark black-and-white sky'),
+        ],
+      },
+      {
+        key: 'structure',
+        ask: ask("What's built there?", '那里建着什么？', '¿Qué hay construido?', 'O que há construído?'),
+        options: [
+          o('loft', 'Towers', '高塔', 'Torres', 'Torres', 'dotted with towering glass spires'),
+          o('cabin', 'Cabins', '木屋', 'Cabañas', 'Cabanas', 'scattered with wooden cabins'),
+          o('lighthouse', 'Lighthouse', '灯塔', 'Faro', 'Farol', 'a lone lighthouse on the cliffs'),
+          o('windmill', 'Windmills', '风车', 'Molinos', 'Moinhos', 'lined with old stone windmills'),
+          o('treehouse', 'Treehouses', '树屋', 'Casas del árbol', 'Casas na árvore', 'crowded with hanging treehouses'),
+          o('seadome', 'Domes', '穹顶', 'Cúpulas', 'Cúpulas', 'crowned with glass domes'),
+          o('arcade', 'Neon city', '霓虹城', 'Ciudad de neón', 'Cidade de neon', 'a sprawling neon-lit city'),
+          o('subway', 'Ruins', '废墟', 'Ruinas', 'Ruínas', 'scattered with forgotten ruins'),
+        ],
+      },
+      {
+        key: 'weather',
+        ask: ask('The weather?', '是什么天气？', '¿El clima?', 'O clima?'),
+        options: [
+          o('sun-golden', 'Golden', '金光', 'Dorado', 'Dourado', 'bathed in golden light'),
+          o('storm', 'Storm', '雷暴', 'Tormenta', 'Tempestade', 'torn by a thunderstorm'),
+          o('fog', 'Fog', '浓雾', 'Niebla', 'Névoa', 'shrouded in drifting fog'),
+          o('aurora', 'Aurora', '极光', 'Aurora', 'Aurora', 'lit by a sky-wide aurora'),
+          o('frost', 'Frost', '冰封', 'Escarcha', 'Geada', 'gripped by glittering frost'),
+          o('bloom', 'Bloom', '花季', 'Floración', 'Floração', 'awash in drifting blossoms'),
+          o('comet', 'Comet', '彗星', 'Cometa', 'Cometa', 'streaked by a falling comet'),
+          o('rainstorm', 'Rain', '暴雨', 'Lluvia', 'Chuva', 'soaked in pouring rain'),
+        ],
+      },
+      {
+        key: 'beast',
+        ask: ask('What roams it?', '什么生灵游荡其间？', '¿Qué lo recorre?', 'O que percorre?'),
+        options: [
+          o('dragon', 'Dragons', '巨龙', 'Dragones', 'Dragões', 'roamed by great dragons'),
+          o('fox', 'Foxes', '狐狸', 'Zorros', 'Raposas', 'home to clever foxes'),
+          o('wolf', 'Wolves', '狼群', 'Lobos', 'Lobos', 'home to roaming wolves'),
+          o('falcon', 'Falcons', '猎隼', 'Halcones', 'Falcões', 'circled by soaring falcons'),
+          o('stag', 'Stags', '雄鹿', 'Ciervos', 'Cervos', 'wandered by noble stags'),
+          o('jellyfish', 'Jellyfish', '水母', 'Medusas', 'Águas-vivas', 'drifting with luminous jellyfish'),
+          o('octopus', 'Octopus', '章鱼', 'Pulpos', 'Polvos', 'home to iridescent octopuses'),
+          o('moth', 'Moths', '飞蛾', 'Polillas', 'Mariposas', 'aglow with giant luminous moths'),
+        ],
+      },
+    ],
+    compose: ([terrain, sky, structure, weather, beast]) =>
+      `A breathtaking fantasy world vista: ${terrain}, ${structure}, ${weather}, ${sky}, ${beast}. Epic wide establishing shot. ${STYLE}`,
   },
 ];
 
