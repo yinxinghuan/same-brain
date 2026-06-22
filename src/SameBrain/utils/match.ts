@@ -66,6 +66,46 @@ export function bestWallMatch(
   };
 }
 
+export interface Twin {
+  vision: Vision;
+  /** 0-4 dims shared with the target. */
+  shared: number;
+  /** 0-100 sync. */
+  sync: number;
+}
+
+/** Everyone else on the wall who pictured the same thing — same prompt, vectors
+ *  overlapping on `minShared`+ dimensions. One entry per person (their strongest
+ *  matching vision), strongest sync first. This is the "twins" of a vision: the
+ *  multiple strangers whose brain matched it. */
+export function twinsOf(target: Vision, wall: Vision[], minShared = 2): Twin[] {
+  const cands = wall
+    .filter(
+      v =>
+        v.id !== target.id &&
+        v.promptId === target.promptId &&
+        !!v.imageUrl &&
+        // a person is not their own twin
+        !(target.userId && v.userId && v.userId === target.userId),
+    )
+    .map(v => {
+      const shared = sharedDims(target.vector, v.vector);
+      return { vision: v, shared, sync: syncScore(shared, target.id + v.id) };
+    })
+    .filter(t => t.shared >= minShared)
+    .sort((a, b) => b.shared - a.shared || b.sync - a.sync);
+
+  const seen = new Set<string>();
+  const out: Twin[] = [];
+  for (const t of cands) {
+    const key = t.vision.userId || t.vision.id;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(t);
+  }
+  return out;
+}
+
 /** Make a variant vector that shares all-but-one dimension with mine (3/4) —
  *  used for the player's alter-ego twin (the same vision, seen a little
  *  differently). */

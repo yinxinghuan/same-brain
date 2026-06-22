@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { openAigramProfile, telegramId } from '@shared/runtime';
 import { useSameBrain } from './hooks/useSameBrain';
 import { vectorLabel } from './utils/compose';
+import { twinsOf, type Twin } from './utils/match';
 import { loc, t } from './i18n';
 import { Icon, ColorSwatch, Monogram } from './assets/icons';
 import type { Vision } from './types';
@@ -236,30 +237,62 @@ function Reveal({
 
 // ── Wall ─────────────────────────────────────────────────────────────────────
 
+/** One stranger who pictured the same thing — their OWN version of the vision,
+ *  their face + name (tappable → profile), and how synced they are. */
+function TwinRow({ twin }: { twin: Twin }) {
+  const v = twin.vision;
+  const inner = (
+    <>
+      <img className="sb-twin__thumb" src={v.imageUrl} alt="" />
+      <Avatar vision={v} size={24} />
+      <span className="sb-twin__name">{v.userName || t('aStranger')}</span>
+      <span className="sb-twin__sync">{twin.sync}%</span>
+    </>
+  );
+  if (v.userId) {
+    return (
+      <button className="sb-twin" onClick={() => openAigramProfile(v.userId!)}>
+        {inner}
+      </button>
+    );
+  }
+  return <div className="sb-twin">{inner}</div>;
+}
+
 /** Zoomed-in look at one wall vision — bigger image, its tap-recipe label, the
- *  author (tappable → their Aigram profile), and a heart that pings the author. */
+ *  author (tappable → their Aigram profile), a heart that pings the author, and
+ *  the twins: everyone else who pictured the same thing, with sync%. */
 function Detail({
   vision,
+  all,
   liked,
   onLike,
   onClose,
 }: {
   vision: Vision;
+  all: Vision[];
   liked: boolean;
   onLike: () => void;
   onClose: () => void;
 }) {
   const label = vectorLabel(promptById(vision.promptId), vision.vector);
+  const twins = twinsOf(vision, all);
   return (
     <div className="sb-detail" onClick={onClose}>
       <div className="sb-detail__box" onClick={e => e.stopPropagation()}>
-        <button className="sb-detail__close" onPointerDown={onClose} aria-label="close">
+        <button
+          className="sb-detail__close"
+          onClick={e => {
+            e.stopPropagation();
+            onClose();
+          }}
+          aria-label="close"
+        >
           ×
         </button>
         <div className="sb-detail__imgwrap">
           <img className="sb-detail__img" src={vision.imageUrl} alt="" />
         </div>
-        {label && <div className="sb-detail__vec">{label}</div>}
         <div className="sb-detail__foot">
           <PartnerChip vision={vision} accent />
           <button
@@ -269,6 +302,24 @@ function Detail({
             <Heart filled={liked} size={20} />
             <span>{liked ? t('liked') : t('like')}</span>
           </button>
+        </div>
+        {label && <div className="sb-detail__vec">{label}</div>}
+
+        <div className="sb-twins">
+          <div className="sb-twins__head">
+            {twins.length > 0
+              ? t('twinsHead') + ' · ' + twins.length
+              : t('twinsHead')}
+          </div>
+          {twins.length > 0 ? (
+            <div className="sb-twins__list">
+              {twins.map(tw => (
+                <TwinRow key={tw.vision.id} twin={tw} />
+              ))}
+            </div>
+          ) : (
+            <div className="sb-twins__empty">{t('twinsNone')}</div>
+          )}
         </div>
       </div>
     </div>
@@ -326,6 +377,7 @@ function Wall({
       {open && (
         <Detail
           vision={open}
+          all={visions}
           liked={likedIds.has(open.id)}
           onLike={() => onLike(open)}
           onClose={() => setOpen(null)}

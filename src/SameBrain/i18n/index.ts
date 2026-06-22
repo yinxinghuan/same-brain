@@ -91,6 +91,8 @@ const STRINGS: Record<string, Loc> = {
   alterEgoHint: { en: 'Strangers who think like you are coming. We’ll ping you when one syncs.', zh: '和你想到一块儿的陌生人正在路上，有人撞中会通知你。', es: 'Pronto llegarán desconocidos que piensan como tú. Te avisaremos.', pt: 'Em breve chegarão estranhos que pensam como você. Avisaremos.' },
   like: { en: 'Same brain', zh: '同款脑子', es: 'Misma mente', pt: 'Mesma mente' },
   liked: { en: 'Loved', zh: '已喜欢', es: 'Te gustó', pt: 'Curtido' },
+  twinsHead: { en: 'Same brain as this', zh: '和这张同款脑子的人', es: 'Misma mente que esta', pt: 'Mesma mente que esta' },
+  twinsNone: { en: 'No twin yet — picture this prompt to be the first.', zh: '还没有双胞胎——画出同款来当第一个', es: 'Aún no hay gemelos — sé el primero en imaginarlo.', pt: 'Ainda não há gêmeos — seja o primeiro a imaginar.' },
 };
 
 export function t(key: keyof typeof STRINGS): string {
