@@ -450,6 +450,90 @@ export const PROMPTS: BrainPrompt[] = [
     compose: ([terrain, sky, structure, weather, beast]) =>
       `A breathtaking fantasy world vista: ${terrain}, ${structure}, ${weather}, ${sky}, ${beast}. Epic wide establishing shot. ${STYLE}`,
   },
+
+  {
+    id: 'look',
+    setup: {
+      en: 'Your alter ego walks in. The signature look is…',
+      zh: '你那个「另一个自己」走了进来，标志性的造型是…',
+      es: 'Tu álter ego entra. El look distintivo es…',
+      pt: 'Seu alter ego entra. O visual marcante é…',
+    },
+    dims: [
+      {
+        key: 'garment',
+        ask: ask('The outfit?', '什么穿搭？', '¿El atuendo?', 'A roupa?'),
+        options: [
+          o('trenchcoat', 'Trench', '风衣', 'Trinchera', 'Trench', 'a belted trench coat'),
+          o('hoodie', 'Hoodie', '连帽衫', 'Sudadera', 'Moletom', 'an oversized hoodie'),
+          o('kimono', 'Kimono', '和服', 'Kimono', 'Quimono', 'a flowing kimono robe'),
+          o('armor', 'Armor', '铠甲', 'Armadura', 'Armadura', 'a gleaming plate breastplate'),
+          o('gown', 'Gown', '礼服', 'Vestido', 'Vestido', 'a flowing evening gown'),
+          o('leatherjacket', 'Leather', '皮夹克', 'Cuero', 'Couro', 'a biker leather jacket'),
+          o('cloak', 'Cloak', '斗篷', 'Capa', 'Capa', 'a hooded cloak'),
+          o('jumpsuit', 'Jumpsuit', '连体衣', 'Mono', 'Macacão', 'a sleek one-piece jumpsuit'),
+        ],
+      },
+      {
+        key: 'palette',
+        ask: ask('The palette?', '什么色调？', '¿La paleta?', 'A paleta?'),
+        options: [
+          col('pink', 'hot pink'),
+          col('cyan', 'electric cyan'),
+          col('gold', 'gold'),
+          col('crimson', 'crimson'),
+          col('violet', 'cosmic violet'),
+          col('jade', 'jade green'),
+          col('mint', 'soft mint'),
+          col('noir', 'black and white'),
+        ],
+      },
+      {
+        key: 'accessory',
+        ask: ask('The accessory?', '什么配饰？', '¿El accesorio?', 'O acessório?'),
+        options: [
+          o('sunglasses', 'Shades', '墨镜', 'Gafas', 'Óculos', 'oversized sunglasses'),
+          o('fedora', 'Fedora', '礼帽', 'Fedora', 'Fedora', 'a wide-brim fedora'),
+          o('necklace', 'Necklace', '项链', 'Collar', 'Colar', 'a pendant necklace'),
+          o('gloves', 'Gloves', '手套', 'Guantes', 'Luvas', 'sleek long gloves'),
+          o('eyemask', 'Eye mask', '眼罩', 'Antifaz', 'Máscara', 'a masquerade eye mask'),
+          o('scarf', 'Scarf', '围巾', 'Bufanda', 'Cachecol', 'a draped silk scarf'),
+          o('earrings', 'Earrings', '耳环', 'Aretes', 'Brincos', 'dangling drop earrings'),
+          o('handbag', 'Handbag', '手袋', 'Bolso', 'Bolsa', 'a statement handbag'),
+        ],
+      },
+      {
+        key: 'backdrop',
+        ask: ask('The backdrop?', '什么背景？', '¿El fondo?', 'O cenário?'),
+        options: [
+          o('citynight', 'City', '都市', 'Ciudad', 'Cidade', 'on a neon-lit city street'),
+          o('coast', 'Coast', '海岸', 'Costa', 'Costa', 'on a sunset beach'),
+          o('desert', 'Desert', '沙漠', 'Desierto', 'Deserto', 'in an open desert at dusk'),
+          o('forest', 'Forest', '森林', 'Bosque', 'Floresta', 'in a misty ancient forest'),
+          o('bridge', 'Bridge', '大桥', 'Puente', 'Ponte', 'on a glowing suspension bridge'),
+          o('starfield', 'Stars', '星空', 'Estrellas', 'Estrelas', 'against a field of stars'),
+          o('mountains', 'Mountains', '雪山', 'Montañas', 'Montanhas', 'before snowy mountain peaks'),
+          o('rainstorm', 'Rain', '暴雨', 'Lluvia', 'Chuva', 'in a pouring rainstorm'),
+        ],
+      },
+      {
+        key: 'vibe',
+        ask: ask('The vibe?', '什么气场？', '¿La onda?', 'A vibe?'),
+        options: [
+          o('regal', 'Regal', '威严', 'Majestuoso', 'Majestoso', 'looking regal and striking'),
+          o('fierce', 'Fierce', '凶悍', 'Feroz', 'Feroz', 'looking fierce'),
+          o('serene', 'Serene', '安宁', 'Sereno', 'Sereno', 'looking serene and poised'),
+          o('mischief', 'Mischief', '狡黠', 'Travieso', 'Travesso', 'looking mischievous'),
+          o('dreamy', 'Dreamy', '梦幻', 'Soñador', 'Sonhador', 'looking dreamy and soft'),
+          o('mystery', 'Mystery', '神秘', 'Misterio', 'Mistério', 'looking mysterious'),
+          o('playful', 'Playful', '顽皮', 'Juguetón', 'Brincalhão', 'looking playful'),
+          o('brooding', 'Brooding', '阴郁', 'Sombrío', 'Melancólico', 'looking brooding'),
+        ],
+      },
+    ],
+    compose: ([garment, palette, accessory, backdrop, vibe]) =>
+      `Full-body high-fashion editorial portrait, wearing ${garment} in ${palette}, accessorized with ${accessory}, ${vibe}, ${backdrop}. ${STYLE}`,
+  },
 ];
 
 /** Daily prompt — rotates on UTC day boundary. */
