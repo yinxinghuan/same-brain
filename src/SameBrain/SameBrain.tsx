@@ -138,6 +138,14 @@ function Picker({
   onChoose: (poolIndex: number) => void;
 }) {
   const dim = prompt.dims[dimIndex];
+  // Briefly confirm the tapped tile before advancing, so the choice registers
+  // and the next question slides in as a connected beat.
+  const [picked, setPicked] = useState<number | null>(null);
+  const choose = (poolIdx: number) => {
+    if (picked !== null) return;
+    setPicked(poolIdx);
+    setTimeout(() => onChoose(poolIdx), 260);
+  };
   return (
     <div className="sb-pick" key={dimIndex}>
       <div className="sb-dots">
@@ -149,12 +157,16 @@ function Picker({
       <div className="sb-tiles">
         {tiles.map((poolIdx, i) => {
           const o = dim.options[poolIdx];
+          const cls =
+            'sb-tile' +
+            (picked === poolIdx ? ' sb-tile--picked' : '') +
+            (picked !== null && picked !== poolIdx ? ' sb-tile--mute' : '');
           return (
             <button
               key={poolIdx}
-              className="sb-tile"
+              className={cls}
               style={{ animationDelay: `${i * 0.04}s` }}
-              onPointerDown={() => onChoose(poolIdx)}
+              onPointerDown={() => choose(poolIdx)}
             >
               <span className="sb-tile__icon">
                 <OptionVisual icon={o.icon} color={o.color} size={34} />
@@ -172,7 +184,7 @@ function Picker({
 
 const DEV_COPY: Array<'reading' | 'finding' | 'almost'> = ['reading', 'finding', 'almost'];
 
-function Developing({ mine }: { mine: Vision | null }) {
+function Developing() {
   const [step, setStep] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setStep(s => Math.min(s + 1, DEV_COPY.length - 1)), 3200);
@@ -182,11 +194,7 @@ function Developing({ mine }: { mine: Vision | null }) {
     <div className="sb-dev">
       <div className="sb-pair">
         <div className="sb-slot sb-slot--mine">
-          {mine ? (
-            <img className="sb-slot__img" src={mine.imageUrl} alt="" />
-          ) : (
-            <div className="sb-slot__shimmer" />
-          )}
+          <div className="sb-slot__shimmer" />
           <span className="sb-slot__tag sb-slot__tag--you">{t('you')}</span>
         </div>
         <div className="sb-pair__vs">
@@ -232,53 +240,103 @@ function Reveal({
     );
   }
   const { partner, sync } = match;
+  // Staged reveal: your image grows in → their image grows in → the verdict
+  // (sync% + all the text) lands. Each beat is its own moment instead of
+  // everything popping at once.
+  return <RevealStaged prompt={prompt} mine={mine} partner={partner} sync={sync} msLeft={msLeft} onWall={onWall} />;
+}
+
+function RevealStaged({
+  prompt,
+  mine,
+  partner,
+  sync,
+  msLeft,
+  onWall,
+}: {
+  prompt: BrainPrompt;
+  mine: Vision;
+  partner: Vision;
+  sync: number;
+  msLeft: number;
+  onWall: () => void;
+}) {
+  // 0: only your image · 1: + their image · 2: + the sync verdict & info
+  const [stage, setStage] = useState(0);
+  useEffect(() => {
+    const t1 = setTimeout(() => setStage(1), 820);
+    const t2 = setTimeout(() => setStage(2), 1750);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
+  const sameFrame = !partner.alterEgo && frameFor(mine.vector) === frameFor(partner.vector);
   return (
     <div className="sb-reveal">
-      <div className="sb-reveal__head">{partner.alterEgo ? t('alterEgoHead') : t('youMatched')}</div>
+      {/* reserve the headline's height so the pair doesn't jump when it lands */}
+      <div className={'sb-reveal__head' + (stage >= 2 ? ' sb-in' : ' sb-pre')}>
+        {partner.alterEgo ? t('alterEgoHead') : t('youMatched')}
+      </div>
       <div className="sb-pair sb-pair--reveal">
-        <div className="sb-slot sb-slot--mine">
-          <img className="sb-slot__img" src={mine.imageUrl} alt="" />
-          <span className="sb-slot__tag sb-slot__tag--you">{t('you')}</span>
+        <div className="sb-rslot">
+          <div className="sb-rgrow"><Framed vision={mine} /></div>
+          <span className="sb-rslot__tag sb-rslot__tag--you">{t('you')}</span>
         </div>
         <div className="sb-sync">
-          <span className="sb-sync__pct">{sync}%</span>
-          <span className="sb-sync__label">{t('sync')}</span>
+          {stage >= 2 ? (
+            <>
+              <span className="sb-sync__pct sb-syncin">{sync}%</span>
+              <span className="sb-sync__label sb-syncin">{t('sync')}</span>
+            </>
+          ) : (
+            <span className="sb-brainpulse"><Icon name="brain" size={24} /></span>
+          )}
         </div>
-        <div className="sb-slot sb-slot--them">
-          <img className="sb-slot__img" src={partner.imageUrl} alt="" />
-          <span className="sb-slot__tag sb-slot__tag--them">
-            <PartnerChip vision={partner} accent />
-          </span>
+        <div className="sb-rslot">
+          {stage >= 1 ? (
+            <>
+              <div className="sb-rgrow"><Framed vision={partner} /></div>
+              <span className="sb-rslot__tag"><PartnerChip vision={partner} accent /></span>
+            </>
+          ) : (
+            <div className="sb-rslot__shim" />
+          )}
         </div>
       </div>
-      <div className="sb-reveal__line">
-        {partner.alterEgo ? (
-          t('alterEgoLine')
-        ) : (
-          <>
-            {t('syncedWith')} <strong>{partner.userName}</strong>
-          </>
-        )}
-      </div>
-      <div className="sb-reveal__vec">{vectorLabel(prompt, mine.vector)}</div>
-      {!partner.alterEgo && frameFor(mine.vector) === frameFor(partner.vector) && (
-        <div className="sb-reveal__frame">
-          <span className="sb-frtag">{frameName(frameFor(mine.vector))}</span>
-          {t('sameFrameReveal')}
+
+      {stage >= 2 && (
+        <div className="sb-reveal__info">
+          <div className="sb-reveal__line">
+            {partner.alterEgo ? (
+              t('alterEgoLine')
+            ) : (
+              <>
+                {t('syncedWith')} <strong>{partner.userName}</strong>
+              </>
+            )}
+          </div>
+          <div className="sb-reveal__vec">{vectorLabel(prompt, mine.vector)}</div>
+          {sameFrame && (
+            <div className="sb-reveal__frame">
+              <span className="sb-frtag">{frameName(frameFor(mine.vector))}</span>
+              {t('sameFrameReveal')}
+            </div>
+          )}
+          {partner.alterEgo && <div className="sb-reveal__hint">{t('alterEgoHint')}</div>}
+          <div className="sb-reveal__seal">
+            <span className="sb-reveal__sealnote">{t('sealedNote')}</span>
+            <span className="sb-reveal__count">
+              {t('nextReading')} <strong>{formatCountdown(msLeft)}</strong>
+            </span>
+          </div>
+          <div className="sb-actions">
+            <button className="sb-btn sb-btn--primary" onPointerDown={onWall}>
+              {t('seeWall')}
+            </button>
+          </div>
         </div>
       )}
-      {partner.alterEgo && <div className="sb-reveal__hint">{t('alterEgoHint')}</div>}
-      <div className="sb-reveal__seal">
-        <span className="sb-reveal__sealnote">{t('sealedNote')}</span>
-        <span className="sb-reveal__count">
-          {t('nextReading')} <strong>{formatCountdown(msLeft)}</strong>
-        </span>
-      </div>
-      <div className="sb-actions">
-        <button className="sb-btn sb-btn--primary" onPointerDown={onWall}>
-          {t('seeWall')}
-        </button>
-      </div>
     </div>
   );
 }
@@ -549,7 +607,7 @@ export default function SameBrain() {
             onChoose={g.choose}
           />
         )}
-        {g.phase === 'developing' && <Developing mine={g.myVision} />}
+        {g.phase === 'developing' && <Developing />}
         {g.phase === 'reveal' && (
           <Reveal
             prompt={g.prompt}

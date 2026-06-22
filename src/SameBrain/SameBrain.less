@@ -262,7 +262,7 @@
   flex-direction: column;
   align-items: center;
   gap: 22px;
-  animation: sb-slidein 0.32s ease both;
+  animation: sb-slidein-right 0.34s cubic-bezier(0.2, 0.7, 0.2, 1) both; // each new question arrives from the right
   &__ask {
     font-size: 23px;
     font-weight: 800;
@@ -301,7 +301,7 @@
   gap: 8px;
   color: @ink;
   cursor: pointer;
-  transition: transform 0.12s, border-color 0.18s, background 0.18s;
+  transition: transform 0.18s, border-color 0.18s, background 0.18s, opacity 0.18s;
   animation: sb-pop 0.3s ease both;
   -webkit-tap-highlight-color: transparent;
   &:active {
@@ -309,6 +309,22 @@
     border-color: @pink;
     background: lighten(@card, 5%);
     .sb-icon { color: @pink; }
+  }
+  // the chosen tile confirms (lifts + glows) before the next question slides in
+  &--picked {
+    animation: sb-tilepick 0.26s ease both;
+    border-color: @pink;
+    background: lighten(@card, 7%);
+    box-shadow: 0 0 0 1px fade(@pink, 60%), 0 8px 22px fade(@pink, 30%);
+    .sb-icon,
+    .sb-tile__label { color: @pink; }
+  }
+  // the others recede so the choice stands out (clear the entrance animation so
+  // its `both` fill-mode doesn't pin opacity/transform back to full)
+  &--mute {
+    animation: none;
+    opacity: 0.32;
+    transform: scale(0.96);
   }
   &__icon {
     display: inline-flex;
@@ -334,6 +350,7 @@
 .sb-slot {
   position: relative;
   flex: 1 1 0;
+  min-width: 0; // both slots always divide the row evenly, never overflow
   aspect-ratio: 1;
   border-radius: 18px;
   overflow: hidden;
@@ -432,13 +449,44 @@
     p { color: @dim; font-size: 16px; font-weight: 600; text-align: center; }
   }
 }
-.sb-pair--reveal .sb-pair__vs { width: 64px; }
-.sb-sync {
-  flex: 0 0 auto;
+.sb-pair--reveal {
+  align-items: center; // framed visions of different heights center on the sync
+  gap: 6px;
+}
+// Reveal slots wear the vision's identity frame (polaroid / film / stamp / …).
+.sb-rslot {
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: sb-syncpop 0.55s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+  gap: 9px;
+  &__tag {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    &--you { color: @pink; text-transform: uppercase; }
+  }
+  &__shim {
+    width: 100%;
+    aspect-ratio: 0.88;
+    border-radius: 14px;
+    background: linear-gradient(110deg, @card 30%, lighten(@card, 8%) 50%, @card 70%);
+    background-size: 220% 100%;
+    animation: sb-sweep 1.3s linear infinite;
+  }
+}
+.sb-rgrow {
+  width: 100%;
+  animation: sb-grow 0.6s cubic-bezier(0.2, 0.75, 0.2, 1) both;
+}
+.sb-sync {
+  flex: 0 0 auto;
+  width: 64px; // fixed so swapping the brain-pulse → % never shifts the two slots
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   &__pct {
     font-size: 30px;
     font-weight: 900;
@@ -575,6 +623,32 @@
     font-variant-numeric: tabular-nums;
     font-feature-settings: 'tnum';
   }
+}
+
+// ── Staged reveal animation ──────────────────────────────
+// Each image "grows" in as its stage arrives; the verdict block fades up last.
+.sb-slot__img.sb-grow {
+  animation: sb-grow 0.6s cubic-bezier(0.2, 0.75, 0.2, 1) both;
+}
+.sb-reveal__head.sb-pre { opacity: 0; } // reserve height, hidden until the verdict
+.sb-reveal__head.sb-in { animation: sb-fadeup 0.5s ease both; }
+.sb-sync__pct.sb-syncin,
+.sb-sync__label.sb-syncin { animation: sb-syncpop 0.5s cubic-bezier(0.2, 0.9, 0.2, 1.25) both; }
+.sb-reveal__info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  animation: sb-fadeup 0.5s ease both;
+}
+@keyframes sb-grow {
+  from { opacity: 0; transform: scale(0.8); filter: blur(10px); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+@keyframes sb-fadeup {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 // ── Wall ─────────────────────────────────────────────────
@@ -1102,3 +1176,5 @@
 @keyframes sb-sweep { to { background-position: -220% 0; } }
 @keyframes sb-develop { from { filter: blur(14px) brightness(0.3) saturate(0.4); } to { filter: blur(0) brightness(1) saturate(1); } }
 @keyframes sb-syncpop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+@keyframes sb-slidein-right { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes sb-tilepick { 0% { transform: scale(1); } 45% { transform: scale(1.08); } 100% { transform: scale(1.03); } }
