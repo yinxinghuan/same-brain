@@ -3,7 +3,7 @@ import { openAigramProfile, telegramId } from '@shared/runtime';
 import { useSameBrain } from './hooks/useSameBrain';
 import { vectorLabel } from './utils/compose';
 import { twinsOf, type Twin } from './utils/match';
-import { frameFor } from './utils/frame';
+import { frameFor, frameName } from './utils/frame';
 import { loc, t } from './i18n';
 import { Icon, ColorSwatch, Monogram } from './assets/icons';
 import type { Vision } from './types';
@@ -14,9 +14,10 @@ const isUrl = (s?: string) => !!s && /^https?:\/\//.test(s);
 
 /** A vision's image inside its identity frame (polaroid / film / stamp / …),
  *  derived from the player's choices so twins share a frame. */
-function Framed({ vision, size }: { vision: Vision; size?: 'lg' }) {
+function Framed({ vision, size }: { vision: Vision; size?: 'sm' | 'lg' }) {
+  const sz = size ? ' sb-fr--' + size : '';
   return (
-    <div className={'sb-fr sb-fr--' + frameFor(vision.vector) + (size === 'lg' ? ' sb-fr--lg' : '')}>
+    <div className={'sb-fr sb-fr--' + frameFor(vision.vector) + sz}>
       <img className="sb-fr__img" src={vision.imageUrl} alt="" draggable={false} />
     </div>
   );
@@ -250,6 +251,12 @@ function Reveal({
         )}
       </div>
       <div className="sb-reveal__vec">{vectorLabel(prompt, mine.vector)}</div>
+      {!partner.alterEgo && frameFor(mine.vector) === frameFor(partner.vector) && (
+        <div className="sb-reveal__frame">
+          <span className="sb-frtag">{frameName(frameFor(mine.vector))}</span>
+          {t('sameFrameReveal')}
+        </div>
+      )}
       {partner.alterEgo && <div className="sb-reveal__hint">{t('alterEgoHint')}</div>}
       <div className="sb-actions">
         <button className="sb-btn sb-btn--primary" onPointerDown={onAgain}>
@@ -266,14 +273,21 @@ function Reveal({
 // ── Wall ─────────────────────────────────────────────────────────────────────
 
 /** One stranger who pictured the same thing — their OWN version of the vision,
- *  their face + name (tappable → profile), and how synced they are. */
-function TwinRow({ twin }: { twin: Twin }) {
+ *  their face + name (tappable → profile), their frame, and how synced. When
+ *  their frame matches the one you opened, it's flagged "same frame". */
+function TwinRow({ twin, sameFrame }: { twin: Twin; sameFrame: boolean }) {
   const v = twin.vision;
+  const fr = frameFor(v.vector);
   const inner = (
     <>
-      <img className="sb-twin__thumb" src={v.imageUrl} alt="" />
+      <Framed vision={v} size="sm" />
       <Avatar vision={v} size={24} />
-      <span className="sb-twin__name">{v.userName || t('aStranger')}</span>
+      <span className="sb-twin__id">
+        <span className="sb-twin__name">{v.userName || t('aStranger')}</span>
+        <span className={'sb-twin__frame' + (sameFrame ? ' sb-twin__frame--same' : '')}>
+          {sameFrame ? t('sameFrame') : frameName(fr)}
+        </span>
+      </span>
       <span className="sb-twin__sync">{twin.sync}%</span>
     </>
   );
@@ -304,6 +318,7 @@ function Detail({
   onClose: () => void;
 }) {
   const label = vectorLabel(promptById(vision.promptId), vision.vector);
+  const myFrame = frameFor(vision.vector);
   const twins = twinsOf(vision, all);
   return (
     <div className="sb-detail" onClick={onClose}>
@@ -330,6 +345,10 @@ function Detail({
           </button>
         </div>
         {label && <div className="sb-detail__vec">{label}</div>}
+        <div className="sb-detail__frame">
+          <span className="sb-frtag">{frameName(myFrame)}</span>
+          <span className="sb-detail__frametip">{t('frameTip')}</span>
+        </div>
 
         <div className="sb-twins">
           <div className="sb-twins__head">
@@ -340,7 +359,11 @@ function Detail({
           {twins.length > 0 ? (
             <div className="sb-twins__list">
               {twins.map(tw => (
-                <TwinRow key={tw.vision.id} twin={tw} />
+                <TwinRow
+                  key={tw.vision.id}
+                  twin={tw}
+                  sameFrame={frameFor(tw.vision.vector) === myFrame}
+                />
               ))}
             </div>
           ) : (

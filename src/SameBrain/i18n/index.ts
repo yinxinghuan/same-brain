@@ -93,6 +93,9 @@ const STRINGS: Record<string, Loc> = {
   liked: { en: 'Loved', zh: '已喜欢', es: 'Te gustó', pt: 'Curtido' },
   twinsHead: { en: 'Same brain as this', zh: '和这张同款脑子的人', es: 'Misma mente que esta', pt: 'Mesma mente que esta' },
   twinsNone: { en: 'No twin yet — picture this prompt to be the first.', zh: '还没有双胞胎——画出同款来当第一个', es: 'Aún no hay gemelos — sé el primero en imaginarlo.', pt: 'Ainda não há gêmeos — seja o primeiro a imaginar.' },
+  frameTip: { en: 'Same pick = same frame', zh: '同款选择 = 同款相框', es: 'Misma elección = mismo marco', pt: 'Mesma escolha = mesmo quadro' },
+  sameFrame: { en: 'Same frame', zh: '同款相框', es: 'Mismo marco', pt: 'Mesmo quadro' },
+  sameFrameReveal: { en: 'You even share a frame', zh: '你们连相框都一样', es: 'Hasta comparten marco', pt: 'Vocês até dividem o quadro' },
 };
 
 export function t(key: keyof typeof STRINGS): string {

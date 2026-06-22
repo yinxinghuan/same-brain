@@ -506,7 +506,6 @@
   display: block;
   flex: 0 0 auto; // don't shrink inside the detail's flex column
   width: 100%;
-  border-radius: 4px;
   &__img {
     display: block;
     width: 100%;
@@ -515,121 +514,186 @@
     pointer-events: none;
   }
 
-  // 1) Polaroid — white mat with a wide caption gap below.
+  // 1) Polaroid — instant-film proportions: thin top/sides, deep chin. Warm
+  //    paper gradient, soft sheen, recessed photo well.
   &--polaroid {
-    background: #fbf9f3;
-    padding: 7px 7px 22px;
+    background: linear-gradient(158deg, #fffefb 0%, #f5f2ea 58%, #ece7da 100%);
+    padding: 5.5% 5.5% 20%;
     border-radius: 3px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-    .sb-fr__img { border-radius: 1px; }
+    box-shadow:
+      0 5px 16px rgba(0, 0, 0, 0.42),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    .sb-fr__img {
+      border-radius: 1px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.32), 0 0 0 1px rgba(0, 0, 0, 0.12);
+    }
   }
 
-  // 2) Film strip — black with sprocket holes top & bottom.
+  // 2) Film — black base, beveled sprocket rows top & bottom, side rails, a
+  //    thin frame keyline around the photo.
   &--film {
-    background: #0b0b0b;
-    padding: 15px 7px;
-    border-radius: 3px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+    background: linear-gradient(#141414, #090909);
+    padding: 19px 12px;
+    border-radius: 2px;
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.5);
     &::before,
     &::after {
       content: '';
       position: absolute;
-      left: 7px;
-      right: 7px;
-      height: 7px;
-      background: repeating-linear-gradient(90deg, #d8d4c6 0 5px, transparent 5px 11px);
-      border-radius: 1px;
+      left: 0;
+      right: 0;
+      height: 11px;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0 6px,
+        rgba(0, 0, 0, 0.65) 6px 7px,
+        #ece7d6 7px 13px,
+        rgba(0, 0, 0, 0.65) 13px 14px,
+        transparent 14px 20px
+      );
     }
     &::before { top: 4px; }
     &::after { bottom: 4px; }
+    .sb-fr__img { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16); }
   }
 
-  // 3) Postage stamp — perforated scalloped white edge (mask only the mat,
-  //    interior holes hidden behind the image).
+  // 3) Postage stamp (modern) — no mat: perforations bite straight into the
+  //    image, a single clean row per edge.
   &--stamp {
+    --r: 5px;  // hole radius
+    --s: 15px; // hole spacing
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.42));
+    -webkit-mask:
+      radial-gradient(var(--r) at 50% 0, #0000 96%, #000) calc(var(--s) / 2) 0 / var(--s) 100% repeat-x,
+      radial-gradient(var(--r) at 50% 100%, #0000 96%, #000) calc(var(--s) / 2) 100% / var(--s) 100% repeat-x,
+      radial-gradient(var(--r) at 0 50%, #0000 96%, #000) 0 calc(var(--s) / 2) / 100% var(--s) repeat-y,
+      radial-gradient(var(--r) at 100% 50%, #0000 96%, #000) 100% calc(var(--s) / 2) / 100% var(--s) repeat-y;
+    -webkit-mask-composite: source-in, source-in, source-in;
+    mask:
+      radial-gradient(var(--r) at 50% 0, #0000 96%, #000) calc(var(--s) / 2) 0 / var(--s) 100% repeat-x,
+      radial-gradient(var(--r) at 50% 100%, #0000 96%, #000) calc(var(--s) / 2) 100% / var(--s) 100% repeat-x,
+      radial-gradient(var(--r) at 0 50%, #0000 96%, #000) 0 calc(var(--s) / 2) / 100% var(--s) repeat-y,
+      radial-gradient(var(--r) at 100% 50%, #0000 96%, #000) 100% calc(var(--s) / 2) / 100% var(--s) repeat-y;
+    mask-composite: intersect;
+    .sb-fr__img { display: block; }
+  }
+
+  // 4) Postcard — kraft paper, airmail barber-pole border ring, postmark.
+  &--postcard {
+    background: linear-gradient(150deg, #efe7d4, #e2d7bd);
     padding: 11px;
-    filter: drop-shadow(0 2px 7px rgba(0, 0, 0, 0.35));
+    border-radius: 3px;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.3);
     &::before {
       content: '';
       position: absolute;
-      inset: 0;
-      z-index: 0;
-      background: #fdfbf4;
+      inset: 3px;
+      padding: 2px;
       border-radius: 2px;
-      --r: 3.5px;
-      --s: 10px;
-      -webkit-mask: radial-gradient(var(--r) at var(--r) var(--r), #0000 98%, #000)
-        calc(var(--r) * -1) calc(var(--r) * -1) / var(--s) var(--s);
-      mask: radial-gradient(var(--r) at var(--r) var(--r), #0000 98%, #000)
-        calc(var(--r) * -1) calc(var(--r) * -1) / var(--s) var(--s);
+      pointer-events: none;
+      z-index: 2;
+      background: repeating-linear-gradient(
+        45deg,
+        #c0392b 0 7px,
+        #f4f1e6 7px 14px,
+        #2c5aa0 14px 21px,
+        #f4f1e6 21px 28px
+      );
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
     }
-    .sb-fr__img { position: relative; z-index: 1; border-radius: 1px; }
-  }
-
-  // 4) Postcard — kraft border with a faux postmark cancellation.
-  &--postcard {
-    background: #ece3d0;
-    padding: 8px;
-    border: 1px solid #d6cbb1;
-    border-radius: 3px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.38);
     &::after {
       content: '';
       position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 26px;
-      height: 26px;
-      z-index: 2;
-      border: 2px solid rgba(110, 82, 54, 0.55);
+      top: 14px;
+      right: 14px;
+      width: 28px;
+      height: 28px;
+      z-index: 3;
+      border: 2px solid rgba(80, 60, 40, 0.5);
       border-radius: 50%;
-      background: repeating-conic-gradient(
-        rgba(110, 82, 54, 0.45) 0 11deg,
-        transparent 11deg 22deg
-      );
+      background: repeating-conic-gradient(rgba(80, 60, 40, 0.42) 0 12deg, transparent 12deg 24deg);
       mix-blend-mode: multiply;
     }
   }
 
-  // 5) Neon — glowing gradient edge.
+  // 5) Neon — glowing tube around a dark mount.
   &--neon {
-    padding: 4px;
+    padding: 5px;
     border-radius: 16px;
-    background: linear-gradient(135deg, @pink, @cyan);
-    box-shadow: 0 0 16px fade(@cyan, 50%), 0 0 26px fade(@pink, 32%);
-    .sb-fr__img { border-radius: 12px; }
+    background: linear-gradient(135deg, @pink, #b14dff 48%, @cyan);
+    box-shadow:
+      0 0 11px fade(@pink, 60%),
+      0 0 24px fade(@cyan, 42%),
+      0 5px 16px rgba(0, 0, 0, 0.5);
+    .sb-fr__img {
+      border: 2px solid #0b0b16;
+      border-radius: 12px;
+    }
   }
 
-  // 6) Washi tape — white mat held by two translucent tape strips.
+  // 6) Washi tape — paper print taped at two corners with striped translucent tape.
   &--tape {
-    background: #fff;
+    background: linear-gradient(#ffffff, #f6f5f1);
     padding: 9px;
     border-radius: 2px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.38);
     &::before,
     &::after {
       content: '';
       position: absolute;
-      top: 3px;
-      width: 40px;
-      height: 15px;
+      top: -5px;
+      width: 46px;
+      height: 17px;
       z-index: 3;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.28) 0 3px, transparent 3px 6px),
+        rgba(160, 228, 208, 0.72);
     }
-    &::before { left: 6px; transform: rotate(-8deg); background: rgba(160, 230, 210, 0.7); }
-    &::after { right: 6px; transform: rotate(7deg); background: rgba(247, 196, 219, 0.7); }
+    &::before { left: 9px; transform: rotate(-7deg); }
+    &::after {
+      right: 9px;
+      transform: rotate(6deg);
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.28) 0 3px, transparent 3px 6px),
+        rgba(247, 196, 219, 0.72);
+    }
+    .sb-fr__img { border-radius: 1px; }
   }
 
-  // Bigger paddings/decorations when blown up in the detail view.
-  &--lg {
-    &.sb-fr--polaroid { padding: 11px 11px 34px; }
-    &.sb-fr--film { padding: 22px 11px; }
+  // Compact frame for the tiny twin thumbnails — keep each frame's signature
+  // look, drop decorations that can't read (or would overhang) at ~44px.
+  &--sm {
+    width: 44px;
+    &.sb-fr--polaroid { padding: 3px 3px 9px; }
+    &.sb-fr--film { padding: 6px 3px; }
     &.sb-fr--film::before,
-    &.sb-fr--film::after { height: 9px; left: 11px; right: 11px; }
-    &.sb-fr--stamp { padding: 15px; }
-    &.sb-fr--postcard::after { width: 38px; height: 38px; top: 16px; right: 16px; }
+    &.sb-fr--film::after { height: 4px; }
+    &.sb-fr--stamp { --r: 2.5px; --s: 7px; }
+    &.sb-fr--postcard { padding: 4px; }
+    &.sb-fr--postcard::before { inset: 2px; padding: 1px; }
+    &.sb-fr--postcard::after { display: none; }
+    &.sb-fr--neon { padding: 2px; border-radius: 8px; }
+    &.sb-fr--neon .sb-fr__img { border-width: 1px; border-radius: 6px; }
+    &.sb-fr--tape { padding: 3px; }
     &.sb-fr--tape::before,
-    &.sb-fr--tape::after { width: 58px; height: 20px; top: 5px; }
+    &.sb-fr--tape::after { display: none; }
+  }
+
+  // Scale up decorations when blown up in the detail view.
+  &--lg {
+    &.sb-fr--film { padding: 26px 15px; }
+    &.sb-fr--film::before,
+    &.sb-fr--film::after { height: 14px; }
+    &.sb-fr--stamp { --r: 7px; --s: 21px; }
+    &.sb-fr--postcard::after { width: 40px; height: 40px; top: 18px; right: 18px; }
+    &.sb-fr--postcard::before { inset: 4px; padding: 3px; }
+    &.sb-fr--tape::before,
+    &.sb-fr--tape::after { width: 64px; height: 22px; top: -7px; }
   }
 }
 
@@ -743,34 +807,43 @@
 .sb-twin {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   width: 100%;
   text-align: left;
   border: none;
   background: fade(#fff, 5%);
   border-radius: 12px;
-  padding: 6px 12px 6px 6px;
+  padding: 7px 12px 7px 7px;
   color: @ink;
   font: inherit;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  &__thumb {
-    width: 38px;
-    height: 38px;
-    border-radius: 9px;
-    object-fit: cover;
-    flex: 0 0 auto;
-    background: @bg;
-  }
-  &__name {
+  .sb-fr { flex: 0 0 auto; } // the twin's own framed thumbnail
+  &__id {
     flex: 1 1 auto;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  &__name {
     font-size: 13px;
     font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  &__frame {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: @dim;
+    &--same {
+      color: @pink;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
   }
   &__sync {
     flex: 0 0 auto;
@@ -779,6 +852,43 @@
     color: @cyan;
   }
   button& { cursor: pointer; }
+}
+
+// Frame trait chip + the "same frame" callouts.
+.sb-frtag {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: @ink;
+  background: fade(#fff, 9%);
+  border: 1px solid fade(#fff, 16%);
+  border-radius: 999px;
+  padding: 4px 11px;
+}
+.sb-detail__frame {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 10px 2px 2px;
+}
+.sb-detail__frametip {
+  font-size: 11.5px;
+  color: @dim;
+  font-weight: 600;
+}
+.sb-reveal__frame {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: @pink;
+  .sb-frtag { color: @pink; border-color: fade(@pink, 45%); background: fade(@pink, 12%); }
 }
 .sb-like {
   display: inline-flex;
