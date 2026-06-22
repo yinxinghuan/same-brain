@@ -119,6 +119,23 @@
     animation: sb-breathe 2.2s ease-in-out infinite;
   }
   &__finger { font-size: 19px; }
+  &__wall {
+    position: relative;
+    margin-top: -6px;
+    border: 1px solid fade(#fff, 16%);
+    background: fade(#fff, 6%);
+    color: @ink;
+    border-radius: 999px;
+    padding: 9px 18px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: transform 0.1s, background 0.18s;
+    &:active { transform: scale(0.95); }
+  }
 }
 
 // ── Picker ───────────────────────────────────────────────
@@ -459,35 +476,160 @@
     -webkit-overflow-scrolling: touch;
   }
   &__card {
-    border-radius: 16px;
-    overflow: hidden;
-    background: @card;
     position: relative;
+    background: transparent; // the frame is the surface now
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     transition: transform 0.12s;
     &:active { transform: scale(0.97); }
   }
-  &__img {
-    display: block;
-    width: 100%;
-    height: auto; // square source images -> square cells; sizes the row reliably
-    background: @card;
-    pointer-events: none;
-  }
   &__heart {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 9px;
+    right: 9px;
+    z-index: 4;
     color: @pink;
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55));
     display: inline-flex;
     pointer-events: none;
   }
   &__foot {
-    padding: 8px;
+    padding: 8px 2px 0;
     display: flex;
+  }
+}
+
+// ── Vision frames — the outer style is part of a vision's identity ────────
+.sb-fr {
+  position: relative;
+  display: block;
+  flex: 0 0 auto; // don't shrink inside the detail's flex column
+  width: 100%;
+  border-radius: 4px;
+  &__img {
+    display: block;
+    width: 100%;
+    height: auto; // square source -> square; sizes the grid row reliably
+    background: @bg;
+    pointer-events: none;
+  }
+
+  // 1) Polaroid — white mat with a wide caption gap below.
+  &--polaroid {
+    background: #fbf9f3;
+    padding: 7px 7px 22px;
+    border-radius: 3px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+    .sb-fr__img { border-radius: 1px; }
+  }
+
+  // 2) Film strip — black with sprocket holes top & bottom.
+  &--film {
+    background: #0b0b0b;
+    padding: 15px 7px;
+    border-radius: 3px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      left: 7px;
+      right: 7px;
+      height: 7px;
+      background: repeating-linear-gradient(90deg, #d8d4c6 0 5px, transparent 5px 11px);
+      border-radius: 1px;
+    }
+    &::before { top: 4px; }
+    &::after { bottom: 4px; }
+  }
+
+  // 3) Postage stamp — perforated scalloped white edge (mask only the mat,
+  //    interior holes hidden behind the image).
+  &--stamp {
+    padding: 11px;
+    filter: drop-shadow(0 2px 7px rgba(0, 0, 0, 0.35));
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: #fdfbf4;
+      border-radius: 2px;
+      --r: 3.5px;
+      --s: 10px;
+      -webkit-mask: radial-gradient(var(--r) at var(--r) var(--r), #0000 98%, #000)
+        calc(var(--r) * -1) calc(var(--r) * -1) / var(--s) var(--s);
+      mask: radial-gradient(var(--r) at var(--r) var(--r), #0000 98%, #000)
+        calc(var(--r) * -1) calc(var(--r) * -1) / var(--s) var(--s);
+    }
+    .sb-fr__img { position: relative; z-index: 1; border-radius: 1px; }
+  }
+
+  // 4) Postcard — kraft border with a faux postmark cancellation.
+  &--postcard {
+    background: #ece3d0;
+    padding: 8px;
+    border: 1px solid #d6cbb1;
+    border-radius: 3px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.38);
+    &::after {
+      content: '';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 26px;
+      height: 26px;
+      z-index: 2;
+      border: 2px solid rgba(110, 82, 54, 0.55);
+      border-radius: 50%;
+      background: repeating-conic-gradient(
+        rgba(110, 82, 54, 0.45) 0 11deg,
+        transparent 11deg 22deg
+      );
+      mix-blend-mode: multiply;
+    }
+  }
+
+  // 5) Neon — glowing gradient edge.
+  &--neon {
+    padding: 4px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, @pink, @cyan);
+    box-shadow: 0 0 16px fade(@cyan, 50%), 0 0 26px fade(@pink, 32%);
+    .sb-fr__img { border-radius: 12px; }
+  }
+
+  // 6) Washi tape — white mat held by two translucent tape strips.
+  &--tape {
+    background: #fff;
+    padding: 9px;
+    border-radius: 2px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      width: 40px;
+      height: 15px;
+      z-index: 3;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    }
+    &::before { left: 6px; transform: rotate(-8deg); background: rgba(160, 230, 210, 0.7); }
+    &::after { right: 6px; transform: rotate(7deg); background: rgba(247, 196, 219, 0.7); }
+  }
+
+  // Bigger paddings/decorations when blown up in the detail view.
+  &--lg {
+    &.sb-fr--polaroid { padding: 11px 11px 34px; }
+    &.sb-fr--film { padding: 22px 11px; }
+    &.sb-fr--film::before,
+    &.sb-fr--film::after { height: 9px; left: 11px; right: 11px; }
+    &.sb-fr--stamp { padding: 15px; }
+    &.sb-fr--postcard::after { width: 38px; height: 38px; top: 16px; right: 16px; }
+    &.sb-fr--tape::before,
+    &.sb-fr--tape::after { width: 58px; height: 20px; top: 5px; }
   }
 }
 

@@ -3,6 +3,7 @@ import { openAigramProfile, telegramId } from '@shared/runtime';
 import { useSameBrain } from './hooks/useSameBrain';
 import { vectorLabel } from './utils/compose';
 import { twinsOf, type Twin } from './utils/match';
+import { frameFor } from './utils/frame';
 import { loc, t } from './i18n';
 import { Icon, ColorSwatch, Monogram } from './assets/icons';
 import type { Vision } from './types';
@@ -10,6 +11,16 @@ import { promptById, type BrainPrompt } from './data/prompts';
 import './SameBrain.less';
 
 const isUrl = (s?: string) => !!s && /^https?:\/\//.test(s);
+
+/** A vision's image inside its identity frame (polaroid / film / stamp / …),
+ *  derived from the player's choices so twins share a frame. */
+function Framed({ vision, size }: { vision: Vision; size?: 'lg' }) {
+  return (
+    <div className={'sb-fr sb-fr--' + frameFor(vision.vector) + (size === 'lg' ? ' sb-fr--lg' : '')}>
+      <img className="sb-fr__img" src={vision.imageUrl} alt="" draggable={false} />
+    </div>
+  );
+}
 
 function Heart({ filled, size = 22 }: { filled?: boolean; size?: number }) {
   return (
@@ -69,7 +80,15 @@ function OptionVisual({ icon, color, size = 32 }: { icon?: string; color?: strin
 
 // ── Intro ──────────────────────────────────────────────────────────────────
 
-function Intro({ prompt, onStart }: { prompt: BrainPrompt; onStart: () => void }) {
+function Intro({
+  prompt,
+  onStart,
+  onWall,
+}: {
+  prompt: BrainPrompt;
+  onStart: () => void;
+  onWall: () => void;
+}) {
   const previews = prompt.dims[0].options.slice(0, 6);
   return (
     <div className="sb-intro" onPointerDown={onStart}>
@@ -86,6 +105,15 @@ function Intro({ prompt, onStart }: { prompt: BrainPrompt; onStart: () => void }
         <Icon name="tap" size={20} />
         <span>{t('tapToThink')}</span>
       </div>
+      <button
+        className="sb-intro__wall"
+        onPointerDown={e => {
+          e.stopPropagation();
+          onWall();
+        }}
+      >
+        {t('seeWall')} ›
+      </button>
     </div>
   );
 }
@@ -290,9 +318,7 @@ function Detail({
         >
           ×
         </button>
-        <div className="sb-detail__imgwrap">
-          <img className="sb-detail__img" src={vision.imageUrl} alt="" />
-        </div>
+        <Framed vision={vision} size="lg" />
         <div className="sb-detail__foot">
           <PartnerChip vision={vision} accent />
           <button
@@ -363,7 +389,7 @@ function Wall({
           {visions.map(v => (
             // onClick (not onPointerDown) so a finger can scroll past the card.
             <div className="sb-wall__card" key={v.id} onClick={() => setOpen(v)}>
-              <img className="sb-wall__img" src={v.imageUrl} alt="" />
+              <Framed vision={v} />
               {likedIds.has(v.id) && (
                 <span className="sb-wall__heart"><Heart filled size={15} /></span>
               )}
@@ -414,7 +440,9 @@ export default function SameBrain() {
       </header>
 
       <main className="sb-stage">
-        {g.phase === 'intro' && <Intro prompt={g.prompt} onStart={g.start} />}
+        {g.phase === 'intro' && (
+          <Intro prompt={g.prompt} onStart={g.start} onWall={g.openWall} />
+        )}
         {g.phase === 'picking' && (
           <Picker prompt={g.prompt} dimIndex={g.dimIndex} onChoose={g.choose} />
         )}
