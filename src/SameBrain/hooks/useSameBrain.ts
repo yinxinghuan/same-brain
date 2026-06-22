@@ -51,8 +51,53 @@ export function useSameBrain() {
   }, [save.savedData, mirror]);
 
   const notified = useRef<Set<string>>(new Set());
+  const likeNotified = useRef<Set<string>>(new Set());
   const wallRef = useRef(wall.visions);
   wallRef.current = wall.visions;
+
+  // Heart a stranger's vision on the wall: persist it locally (fills the heart,
+  // survives reloads) and ping the author once — never self, alter ego, or a
+  // vision we've already pinged for.
+  const likeVision = useCallback(
+    (v: Vision) => {
+      if (!v.id) return;
+      setMirror(prev => {
+        const base = prev ?? EMPTY;
+        const likes = new Set(base.likes ?? []);
+        const wasLiked = likes.has(v.id);
+        if (wasLiked) likes.delete(v.id);
+        else likes.add(v.id);
+        const next: SameBrainSave = { ...base, likes: [...likes] };
+        save.persist(next);
+
+        // Notify only when newly hearting a real other player's vision, once.
+        if (
+          !wasLiked &&
+          !v.alterEgo &&
+          v.userId &&
+          v.userId !== telegramId &&
+          !likeNotified.current.has(v.id)
+        ) {
+          likeNotified.current.add(v.id);
+          event.trigger('vision_liked', {
+            actions: [
+              {
+                type: 'notify',
+                target_user_id: v.userId,
+                image: { ref_url: v.imageUrl, prompt: 'Someone loved the vision you pictured.' },
+                message: {
+                  template: '{sender_name} loved your vision',
+                  variables: ['sender_name'],
+                },
+              },
+            ],
+          });
+        }
+        return next;
+      });
+    },
+    [event, save],
+  );
 
   async function genWithRetry(p: string): Promise<string> {
     try {
@@ -201,6 +246,7 @@ export function useSameBrain() {
     match,
     error,
     stats: mirror ?? EMPTY,
+    likedIds: new Set(mirror?.likes ?? []),
     wall,
     isInAigram,
     // actions
@@ -210,6 +256,7 @@ export function useSameBrain() {
     again,
     openWall,
     closeWall,
+    likeVision,
     retry: () => runMatch(vector),
   };
 }

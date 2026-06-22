@@ -5,10 +5,19 @@ import { vectorLabel } from './utils/compose';
 import { loc, t } from './i18n';
 import { Icon, ColorSwatch, Monogram } from './assets/icons';
 import type { Vision } from './types';
-import type { BrainPrompt } from './data/prompts';
+import { promptById, type BrainPrompt } from './data/prompts';
 import './SameBrain.less';
 
 const isUrl = (s?: string) => !!s && /^https?:\/\//.test(s);
+
+function Heart({ filled, size = 22 }: { filled?: boolean; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor" strokeWidth={1.9} strokeLinejoin="round">
+      <path d="M12 20s-7-4.5-9.2-9A4.8 4.8 0 0 1 12 6.5 4.8 4.8 0 0 1 21.2 11C19 15.5 12 20 12 20z" />
+    </svg>
+  );
+}
 
 function Avatar({ vision, size = 22 }: { vision: Vision; size?: number }) {
   const a = vision.userAvatarUrl;
@@ -227,17 +236,61 @@ function Reveal({
 
 // ── Wall ─────────────────────────────────────────────────────────────────────
 
+/** Zoomed-in look at one wall vision — bigger image, its tap-recipe label, the
+ *  author (tappable → their Aigram profile), and a heart that pings the author. */
+function Detail({
+  vision,
+  liked,
+  onLike,
+  onClose,
+}: {
+  vision: Vision;
+  liked: boolean;
+  onLike: () => void;
+  onClose: () => void;
+}) {
+  const label = vectorLabel(promptById(vision.promptId), vision.vector);
+  return (
+    <div className="sb-detail" onClick={onClose}>
+      <div className="sb-detail__box" onClick={e => e.stopPropagation()}>
+        <button className="sb-detail__close" onPointerDown={onClose} aria-label="close">
+          ×
+        </button>
+        <div className="sb-detail__imgwrap">
+          <img className="sb-detail__img" src={vision.imageUrl} alt="" />
+        </div>
+        {label && <div className="sb-detail__vec">{label}</div>}
+        <div className="sb-detail__foot">
+          <PartnerChip vision={vision} accent />
+          <button
+            className={'sb-like' + (liked ? ' sb-like--on' : '')}
+            onPointerDown={onLike}
+          >
+            <Heart filled={liked} size={20} />
+            <span>{liked ? t('liked') : t('like')}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Wall({
   visions,
   loaded,
   isInAigram,
+  likedIds,
+  onLike,
   onBack,
 }: {
   visions: Vision[];
   loaded: boolean;
   isInAigram: boolean;
+  likedIds: Set<string>;
+  onLike: (v: Vision) => void;
   onBack: () => void;
 }) {
+  const [open, setOpen] = useState<Vision | null>(null);
   return (
     <div className="sb-wall">
       <div className="sb-wall__bar">
@@ -257,14 +310,26 @@ function Wall({
       ) : (
         <div className="sb-wall__grid">
           {visions.map(v => (
-            <div className="sb-wall__card" key={v.id}>
+            // onClick (not onPointerDown) so a finger can scroll past the card.
+            <div className="sb-wall__card" key={v.id} onClick={() => setOpen(v)}>
               <img className="sb-wall__img" src={v.imageUrl} alt="" />
+              {likedIds.has(v.id) && (
+                <span className="sb-wall__heart"><Heart filled size={15} /></span>
+              )}
               <div className="sb-wall__foot">
                 <PartnerChip vision={v} />
               </div>
             </div>
           ))}
         </div>
+      )}
+      {open && (
+        <Detail
+          vision={open}
+          liked={likedIds.has(open.id)}
+          onLike={() => onLike(open)}
+          onClose={() => setOpen(null)}
+        />
       )}
     </div>
   );
@@ -318,6 +383,8 @@ export default function SameBrain() {
             visions={g.wall.visions}
             loaded={g.wall.loaded}
             isInAigram={g.isInAigram}
+            likedIds={g.likedIds}
+            onLike={g.likeVision}
             onBack={g.closeWall}
           />
         )}

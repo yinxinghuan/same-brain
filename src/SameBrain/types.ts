@@ -42,6 +42,8 @@ export interface SameBrainSave {
   visions: Vision[];
   plays: number;
   bestSync: number;
+  /** Vision ids I've hearted on the Twin visions wall. */
+  likes?: string[];
 }
 
 export type Phase = 'intro' | 'picking' | 'developing' | 'reveal' | 'wall';

@@ -89,6 +89,8 @@ const STRINGS: Record<string, Loc> = {
   alterEgoLine: { en: 'Your alter ego pictured it too.', zh: '另一个你也是这么想的。', es: 'Tu álter ego también lo imaginó así.', pt: 'Seu alter ego também imaginou assim.' },
   alterEgoLabel: { en: 'Your alter ego', zh: '另一个你', es: 'Tu álter ego', pt: 'Seu alter ego' },
   alterEgoHint: { en: 'Strangers who think like you are coming. We’ll ping you when one syncs.', zh: '和你想到一块儿的陌生人正在路上，有人撞中会通知你。', es: 'Pronto llegarán desconocidos que piensan como tú. Te avisaremos.', pt: 'Em breve chegarão estranhos que pensam como você. Avisaremos.' },
+  like: { en: 'Same brain', zh: '同款脑子', es: 'Misma mente', pt: 'Mesma mente' },
+  liked: { en: 'Loved', zh: '已喜欢', es: 'Te gustó', pt: 'Curtido' },
 };
 
 export function t(key: keyof typeof STRINGS): string {
