@@ -230,6 +230,12 @@ export function todaysPrompt(): BrainPrompt {
   return PROMPTS[day % PROMPTS.length];
 }
 
+/** The theme for a given ritual window — a new one each window. */
+export function promptForWindow(window: number): BrainPrompt {
+  const n = PROMPTS.length;
+  return PROMPTS[((window % n) + n) % n];
+}
+
 export function promptById(id: string): BrainPrompt {
   return PROMPTS.find(p => p.id === id) || PROMPTS[0];
 }

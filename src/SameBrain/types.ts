@@ -44,6 +44,8 @@ export interface SameBrainSave {
   bestSync: number;
   /** Vision ids I've hearted on the Twin visions wall. */
   likes?: string[];
+  /** Ritual window index of my most recent draw — gates one draw per window. */
+  lastDrawWindow?: number;
 }
 
-export type Phase = 'intro' | 'picking' | 'developing' | 'reveal' | 'wall';
+export type Phase = 'boot' | 'intro' | 'picking' | 'developing' | 'reveal' | 'wall' | 'locked';

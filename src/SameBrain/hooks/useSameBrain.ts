@@ -6,7 +6,8 @@ import {
   useGenImage,
 } from '@shared/runtime';
 import { useGameSave } from '@shared/save';
-import { todaysPrompt } from '../data/prompts';
+import { promptForWindow } from '../data/prompts';
+import { msToNextWindow, windowIndex } from '../utils/cadence';
 import { composePrompt } from '../utils/compose';
 import {
   bestWallMatch,
@@ -29,18 +30,25 @@ function uid(): string {
 }
 
 export function useSameBrain() {
-  const prompt = useMemo(() => todaysPrompt(), []);
   const genImage = useGenImage();
   const event = useGameEvent();
   const wall = useWall();
   const save = useGameSave<SameBrainSave>('same-brain');
 
-  const [phase, setPhase] = useState<Phase>('intro');
+  const [phase, setPhase] = useState<Phase>('boot');
   const [dimIndex, setDimIndex] = useState(0);
   const [vector, setVector] = useState<Vector>([]);
   const [myVision, setMyVision] = useState<Vision | null>(null);
   const [match, setMatch] = useState<Match | null>(null);
   const [error, setError] = useState(false);
+
+  // The ritual clock. `win` is the current window; each window opens a new theme
+  // and grants one draw. `now` ticks so the countdown is live and so we can
+  // auto-advance to the next theme the instant a window rolls over.
+  const [win, setWin] = useState(() => windowIndex());
+  const [now, setNow] = useState(() => Date.now());
+  const prompt = useMemo(() => promptForWindow(win), [win]);
+  const nextPrompt = useMemo(() => promptForWindow(win + 1), [win]);
 
   // Local mirror of the cloud save (savedData never echoes writes — see CLAUDE.md).
   const [mirror, setMirror] = useState<SameBrainSave | undefined>(undefined);
@@ -49,6 +57,35 @@ export function useSameBrain() {
       setMirror(save.savedData ?? EMPTY);
     }
   }, [save.savedData, mirror]);
+
+  // One draw per window: locked if this window's draw is already spent.
+  const locked = mirror !== undefined && mirror.lastDrawWindow === win;
+
+  // Boot routing: once the save loads, land on the lock screen or a fresh intro
+  // (no intro→lock flash for returning, already-drawn players).
+  useEffect(() => {
+    if (phase === 'boot' && mirror !== undefined) {
+      setPhase(mirror.lastDrawWindow === win ? 'locked' : 'intro');
+    }
+  }, [phase, mirror, win]);
+
+  // Tick every second while a countdown is on screen; roll the window over when
+  // it elapses, which unlocks the next theme automatically.
+  useEffect(() => {
+    if (phase !== 'locked' && phase !== 'reveal') return;
+    const id = setInterval(() => {
+      const t = Date.now();
+      setNow(t);
+      const w = windowIndex(t);
+      if (w !== win) {
+        setWin(w);
+        setPhase(p => (p === 'locked' ? 'intro' : p));
+      }
+    }, 1000);
+    return () => clearInterval(id);
+  }, [phase, win]);
+
+  const msLeft = msToNextWindow(now);
 
   const notified = useRef<Set<string>>(new Set());
   const likeNotified = useRef<Set<string>>(new Set());
@@ -159,13 +196,16 @@ export function useSameBrain() {
         setMatch(m);
         setPhase('reveal');
 
-        // 3) persist my vision (feeds the wall + future matches)
+        // 3) persist my vision (feeds the wall + future matches) and spend this
+        //    window's draw — locks until the next window opens.
         setMirror(prev => {
           const base = prev ?? EMPTY;
           const next: SameBrainSave = {
+            ...base,
             visions: [mine, ...base.visions].slice(0, 12),
             plays: base.plays + 1,
             bestSync: Math.max(base.bestSync, m!.sync),
+            lastDrawWindow: win,
           };
           save.persist(next);
           return next;
@@ -198,17 +238,18 @@ export function useSameBrain() {
         setPhase('reveal');
       }
     },
-    [prompt, event, save],
+    [prompt, event, save, win],
   );
 
   const start = useCallback(() => {
+    if (locked) return; // one draw per window
     setVector([]);
     setDimIndex(0);
     setMyVision(null);
     setMatch(null);
     setError(false);
     setPhase('picking');
-  }, []);
+  }, [locked]);
 
   const choose = useCallback(
     (optIndex: number) => {
@@ -235,10 +276,18 @@ export function useSameBrain() {
     wall.refresh();
     setPhase('wall');
   }, [wall]);
-  const closeWall = useCallback(() => setPhase(myVision ? 'reveal' : 'intro'), [myVision]);
+  // Back out of the wall to wherever you came from: the sealed lock screen, your
+  // reveal, or a fresh intro.
+  const closeWall = useCallback(
+    () => setPhase(locked ? 'locked' : myVision ? 'reveal' : 'intro'),
+    [locked, myVision],
+  );
+
+  const lastVision = mirror?.visions?.[0] ?? null;
 
   return {
     prompt,
+    nextPrompt,
     phase,
     dimIndex,
     vector,
@@ -249,6 +298,10 @@ export function useSameBrain() {
     likedIds: new Set(mirror?.likes ?? []),
     wall,
     isInAigram,
+    // ritual
+    locked,
+    msLeft,
+    lastVision,
     // actions
     start,
     choose,

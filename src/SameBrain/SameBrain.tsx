@@ -4,6 +4,7 @@ import { useSameBrain } from './hooks/useSameBrain';
 import { vectorLabel } from './utils/compose';
 import { twinsOf, type Twin } from './utils/match';
 import { frameFor, frameName } from './utils/frame';
+import { formatCountdown } from './utils/cadence';
 import { loc, t } from './i18n';
 import { Icon, ColorSwatch, Monogram } from './assets/icons';
 import type { Vision } from './types';
@@ -106,6 +107,7 @@ function Intro({
         <Icon name="tap" size={20} />
         <span>{t('tapToThink')}</span>
       </div>
+      <div className="sb-intro__cadence">{t('introCadence')}</div>
       <button
         className="sb-intro__wall"
         onPointerDown={e => {
@@ -199,7 +201,7 @@ function Reveal({
   mine,
   match,
   error,
-  onAgain,
+  msLeft,
   onWall,
   onRetry,
 }: {
@@ -207,7 +209,7 @@ function Reveal({
   mine: Vision | null;
   match: ReturnType<typeof useSameBrain>['match'];
   error: boolean;
-  onAgain: () => void;
+  msLeft: number;
   onWall: () => void;
   onRetry: () => void;
 }) {
@@ -258,11 +260,14 @@ function Reveal({
         </div>
       )}
       {partner.alterEgo && <div className="sb-reveal__hint">{t('alterEgoHint')}</div>}
+      <div className="sb-reveal__seal">
+        <span className="sb-reveal__sealnote">{t('sealedNote')}</span>
+        <span className="sb-reveal__count">
+          {t('nextReading')} <strong>{formatCountdown(msLeft)}</strong>
+        </span>
+      </div>
       <div className="sb-actions">
-        <button className="sb-btn sb-btn--primary" onPointerDown={onAgain}>
-          {t('again')}
-        </button>
-        <button className="sb-btn" onPointerDown={onWall}>
+        <button className="sb-btn sb-btn--primary" onPointerDown={onWall}>
           {t('seeWall')}
         </button>
       </div>
@@ -436,6 +441,54 @@ function Wall({
   );
 }
 
+// ── Boot / Lock ──────────────────────────────────────────────────────────────
+
+function Boot() {
+  return (
+    <div className="sb-boot">
+      <span className="sb-boot__pulse"><Icon name="brain" size={36} /></span>
+    </div>
+  );
+}
+
+/** Shown after you've spent this window's draw: what you pictured, a live
+ *  countdown to the next reading, the next theme, and the rule, plus wall access. */
+function LockView({
+  nextPrompt,
+  msLeft,
+  lastVision,
+  onWall,
+}: {
+  nextPrompt: BrainPrompt;
+  msLeft: number;
+  lastVision: Vision | null;
+  onWall: () => void;
+}) {
+  return (
+    <div className="sb-lock">
+      <div className="sb-lock__badge"><Icon name="brain" size={24} /></div>
+      <div className="sb-lock__title">{t('lockTitle')}</div>
+      {lastVision && (
+        <div className="sb-lock__last">
+          <Framed vision={lastVision} />
+        </div>
+      )}
+      <div className="sb-lock__clockwrap">
+        <span className="sb-lock__clocklabel">{t('nextReading')}</span>
+        <span className="sb-lock__clock">{formatCountdown(msLeft)}</span>
+      </div>
+      <div className="sb-lock__next">
+        <span className="sb-lock__nextlabel">{t('nextTheme')}</span>
+        <span className="sb-lock__nexttext">{loc(nextPrompt.setup)}</span>
+      </div>
+      <div className="sb-lock__rule">{t('ritualRule')}</div>
+      <button className="sb-btn sb-btn--primary" onPointerDown={onWall}>
+        {t('seeWall')} ›
+      </button>
+    </div>
+  );
+}
+
 // ── Root ─────────────────────────────────────────────────────────────────────
 
 export default function SameBrain() {
@@ -463,6 +516,15 @@ export default function SameBrain() {
       </header>
 
       <main className="sb-stage">
+        {g.phase === 'boot' && <Boot />}
+        {g.phase === 'locked' && (
+          <LockView
+            nextPrompt={g.nextPrompt}
+            msLeft={g.msLeft}
+            lastVision={g.lastVision}
+            onWall={g.openWall}
+          />
+        )}
         {g.phase === 'intro' && (
           <Intro prompt={g.prompt} onStart={g.start} onWall={g.openWall} />
         )}
@@ -476,7 +538,7 @@ export default function SameBrain() {
             mine={g.myVision}
             match={g.match}
             error={g.error}
-            onAgain={g.again}
+            msLeft={g.msLeft}
             onWall={g.openWall}
             onRetry={g.retry}
           />
