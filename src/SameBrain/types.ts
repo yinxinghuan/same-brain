@@ -23,6 +23,10 @@ export interface Vision {
    *  fabricated user: it's the player themselves, so it has no profile to open
    *  and never triggers a notify. */
   alterEgo?: boolean;
+  /** True for curated cold-start seed visions attributed to a REAL house
+   *  account (real, tappable profile — not a fabricated user). Matched only
+   *  when no real stranger is available, and deprioritized as the wall fills. */
+  seed?: boolean;
 }
 
 export interface Match {

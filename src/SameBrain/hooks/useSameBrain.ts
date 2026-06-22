@@ -82,8 +82,14 @@ export function useSameBrain() {
         };
         setMyVision(mine);
 
-        // Match against REAL strangers on the wall — best available, any overlap.
-        let m = bestWallMatch(mine, wallRef.current, telegramId);
+        // Priority: a REAL stranger (any overlap) > a curated seed on the real
+        // house account (only if a believable >=2-dim match) > your alter ego.
+        const all = wallRef.current;
+        let m = bestWallMatch(mine, all.filter(v => !v.seed), telegramId);
+        if (!m) {
+          const sm = bestWallMatch(mine, all.filter(v => v.seed), telegramId);
+          if (sm && sm.sharedDims >= 2) m = sm;
+        }
 
         // No real twin yet → the player's own AI ALTER EGO (this is YOU, never a
         // fabricated user). Works everywhere with no wall and no fake identity; the

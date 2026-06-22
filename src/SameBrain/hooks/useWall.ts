@@ -9,6 +9,7 @@ import {
   type AigramResponse,
 } from '@shared/runtime';
 import { getGameUuid } from '@shared/runtime/game-id';
+import { seedVisions } from '../data/seeds';
 import type { SameBrainSave, Vision } from '../types';
 
 interface SaveRow {
@@ -64,7 +65,10 @@ export function useWall(): UseWall {
           }
         }
         flat.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
-        const limited = flat.slice(0, 60);
+        // Real strangers first, then curated seed visions (attributed to the real
+        // house account) so the wall is never empty and early players have a real
+        // twin to match. Seeds carry seed:true so matching can deprioritize them.
+        const limited = [...flat.slice(0, 60), ...seedVisions()];
 
         // Resolve profiles (avatar + name) for display + tappable chips.
         const ids = Array.from(new Set(limited.map(v => v.userId).filter(Boolean) as string[]));

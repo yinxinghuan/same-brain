@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { openAigramProfile } from '@shared/runtime';
+import { openAigramProfile, telegramId } from '@shared/runtime';
 import { useSameBrain } from './hooks/useSameBrain';
 import { vectorLabel } from './utils/compose';
 import { loc, t } from './i18n';
@@ -274,10 +274,18 @@ function Wall({
 
 export default function SameBrain() {
   const g = useSameBrain();
+  const [idOpen, setIdOpen] = useState(false);
+  const [, setTaps] = useState(0);
+  const bumpBrand = () =>
+    setTaps(n => {
+      const x = n + 1;
+      if (x >= 5) setIdOpen(true);
+      return x;
+    });
   return (
     <div className="sb-root">
       <header className="sb-top">
-        <div className="sb-brand">
+        <div className="sb-brand" onClick={bumpBrand}>
           <span className="sb-brand__l">Same</span>
           <span className="sb-brand__r">Brain</span>
         </div>
@@ -314,6 +322,16 @@ export default function SameBrain() {
           />
         )}
       </main>
+
+      {idOpen && (
+        <div className="sb-idcard" onClick={() => setIdOpen(false)}>
+          <div className="sb-idcard__box">
+            <div className="sb-idcard__label">telegram_id</div>
+            <div className="sb-idcard__val">{telegramId || 'null — open inside Aigram'}</div>
+            <div className="sb-idcard__hint">tap anywhere to close</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
