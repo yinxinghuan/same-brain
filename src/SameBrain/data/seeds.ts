@@ -7,7 +7,7 @@
 // stay INERT (seedVisions() returns []), so this can ship before the id is known.
 import type { Vision } from '../types';
 
-export const SEED_USER_ID = ''; // <- fill with the creator's real telegram_id
+export const SEED_USER_ID = '618336286'; // creator's real telegram_id (real, tappable profile)
 
 interface SeedDef {
   promptId: string;
