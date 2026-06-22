@@ -452,6 +452,8 @@
     overscroll-behavior: contain;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: max-content;
+    align-content: start; // else auto rows stretch to fill height & clip cards
     gap: 12px;
     padding-bottom: 24px;
     -webkit-overflow-scrolling: touch;
@@ -463,10 +465,10 @@
     position: relative;
   }
   &__img {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
     display: block;
+    width: 100%;
+    height: auto; // square source images -> square cells; sizes the row reliably
+    background: @card;
   }
   &__foot {
     padding: 8px;
