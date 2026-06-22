@@ -56,6 +56,8 @@ export const PROMPTS: BrainPrompt[] = [
           o('seadome', 'Sea dome', '海底穹顶', 'Cúpula marina', 'Cúpula no mar', 'a glass dome lounge under the ocean surrounded by fish'),
           o('cabin', 'Cabin', '雪山小屋', 'Cabaña', 'Cabana', 'a wooden cabin on a snowy mountain ridge'),
           o('subway', 'Subway car', '废弃地铁', 'Vagón de metro', 'Vagão de metrô', 'a converted abandoned subway car hideout'),
+          o('lighthouse', 'Lighthouse', '灯塔', 'Faro', 'Farol', 'a tall lighthouse on a rocky cliff over the crashing sea'),
+          o('windmill', 'Windmill', '风车屋', 'Molino', 'Moinho', 'a cozy converted windmill in rolling green fields'),
         ],
       },
       {
@@ -68,6 +70,8 @@ export const PROMPTS: BrainPrompt[] = [
           col('crimson', 'deep crimson red mood'),
           col('mint', 'soft mint green palette'),
           col('noir', 'moody black-and-white noir'),
+          col('jade', 'bathed in deep jade green light'),
+          col('violet', 'glowing in cosmic violet'),
         ],
       },
       {
@@ -80,6 +84,8 @@ export const PROMPTS: BrainPrompt[] = [
           o('motorcycle', 'Motorcycle', '机车', 'Motocicleta', 'Moto', 'a vintage motorcycle parked inside'),
           o('telescope', 'Telescope', '望远镜', 'Telescopio', 'Telescópio', 'a huge brass telescope aimed at the sky'),
           o('arcade', 'Arcade', '街机', 'Arcade', 'Fliperama', 'a row of glowing arcade machines'),
+          o('aquarium', 'Aquarium', '水族箱', 'Acuario', 'Aquário', 'a glowing wall-sized aquarium full of fish'),
+          o('jukebox', 'Jukebox', '点唱机', 'Rocola', 'Jukebox', 'a glowing retro jukebox in the corner'),
         ],
       },
       {
@@ -92,6 +98,8 @@ export const PROMPTS: BrainPrompt[] = [
           o('storm', 'Storm', '雷暴夜', 'Tormenta', 'Tempestade', 'a midnight thunderstorm outside the windows'),
           o('dusk', 'Violet dusk', '紫色黄昏', 'Atardecer violeta', 'Crepúsculo violeta', 'a hazy violet dusk'),
           o('candle', 'Candlelit', '烛光', 'Luz de velas', 'Luz de velas', 'warm flickering candlelight'),
+          o('aurora', 'Aurora', '极光', 'Aurora', 'Aurora', 'shimmering aurora lights through the windows'),
+          o('comet', 'Comet', '彗星', 'Cometa', 'Cometa', 'a comet streaking across the night sky'),
         ],
       },
     ],
@@ -118,6 +126,8 @@ export const PROMPTS: BrainPrompt[] = [
           o('horse', 'Horse', '骏马', 'Caballo', 'Cavalo', 'a galloping horse'),
           o('bmx', 'BMX', 'BMX', 'BMX', 'BMX', 'a stunt BMX bike'),
           o('speedboat', 'Speedboat', '快艇', 'Lancha', 'Lancha', 'a roaring speedboat'),
+          o('balloon', 'Hot-air balloon', '热气球', 'Globo', 'Balão', 'a colorful hot-air balloon'),
+          o('submarine', 'Submarine', '潜水艇', 'Submarino', 'Submarino', 'a sleek deep-sea submarine'),
         ],
       },
       {
@@ -130,6 +140,8 @@ export const PROMPTS: BrainPrompt[] = [
           col('crimson', 'crimson red'),
           col('mint', 'pastel mint'),
           col('matteblack', 'matte black'),
+          col('jade', 'jade green'),
+          col('violet', 'violet purple'),
         ],
       },
       {
@@ -142,6 +154,8 @@ export const PROMPTS: BrainPrompt[] = [
           o('floral', 'Floral', '花卉', 'Floral', 'Floral', 'covered in floral decals'),
           o('skull', 'Skull', '骷髅', 'Calavera', 'Caveira', 'a bold skull emblem'),
           o('patina', 'Patina', '锈迹', 'Pátina', 'Pátina', 'a rugged rusty patina'),
+          o('pinstripes', 'Pinstripes', '条纹', 'Rayas', 'Listras', 'bold racing pinstripes down the side'),
+          o('gemstud', 'Jeweled', '宝石', 'Joyas', 'Joias', 'studded with sparkling jewels'),
         ],
       },
       {
@@ -154,6 +168,8 @@ export const PROMPTS: BrainPrompt[] = [
           o('forest', 'Forest', '森林', 'Bosque', 'Floresta', 'on a misty forest road'),
           o('bridge', 'Bridge', '大桥', 'Puente', 'Ponte', 'over a glowing suspension bridge'),
           o('starfield', 'Starfield', '星海', 'Campo estelar', 'Campo de estrelas', 'floating through a starfield'),
+          o('mountains', 'Mountains', '雪山', 'Montañas', 'Montanhas', 'climbing a winding snow-capped mountain pass'),
+          o('rainstorm', 'Rainstorm', '暴雨', 'Tormenta', 'Tempestade', 'speeding through a pouring rainstorm'),
         ],
       },
     ],
@@ -180,6 +196,8 @@ export const PROMPTS: BrainPrompt[] = [
           o('moth', 'Moth', '飞蛾', 'Polilla', 'Mariposa', 'a giant luminous moth'),
           o('wolf', 'Wolf', '狼', 'Lobo', 'Lobo', 'a lone wolf'),
           o('falcon', 'Falcon', '猎隼', 'Halcón', 'Falcão', 'a soaring falcon'),
+          o('jellyfish', 'Jellyfish', '水母', 'Medusa', 'Água-viva', 'a luminous drifting jellyfish'),
+          o('stag', 'Stag', '雄鹿', 'Ciervo', 'Cervo', 'a noble antlered stag'),
         ],
       },
       {
@@ -192,6 +210,8 @@ export const PROMPTS: BrainPrompt[] = [
           o('moonlight', 'Moonlight', '月光', 'Luz de luna', 'Luar', 'glowing in moonlight'),
           o('bloom', 'Bloom', '花海', 'Floración', 'Floração', 'surrounded by blooming flowers'),
           o('frost', 'Frost', '寒霜', 'Escarcha', 'Geada', 'laced with frost and ice'),
+          o('embers', 'Embers', '余烬', 'Brasas', 'Brasas', 'drifting in glowing embers and sparks'),
+          o('stardust', 'Stardust', '星尘', 'Polvo estelar', 'Poeira estelar', 'sprinkled with cosmic stardust'),
         ],
       },
       {
@@ -204,6 +224,8 @@ export const PROMPTS: BrainPrompt[] = [
           col('crimson', 'in deep crimson'),
           col('jade', 'in jade green'),
           col('violet', 'in cosmic violet'),
+          col('mint', 'in soft mint green'),
+          col('noir', 'in stark black and white'),
         ],
       },
       {
@@ -216,6 +238,8 @@ export const PROMPTS: BrainPrompt[] = [
           o('fierce', 'Fierce', '凶悍', 'Feroz', 'Feroz', 'fierce and battle-ready'),
           o('dreamy', 'Dreamy', '梦幻', 'Soñador', 'Sonhador', 'sleepy and dreamlike'),
           o('mystery', 'Mystery', '神秘', 'Misterio', 'Mistério', 'mysterious and masked'),
+          o('playful', 'Playful', '顽皮', 'Juguetón', 'Brincalhão', 'playful and full of energy'),
+          o('brooding', 'Brooding', '阴郁', 'Sombrío', 'Melancólico', 'brooding and storm-tempered'),
         ],
       },
     ],

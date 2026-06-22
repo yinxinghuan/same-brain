@@ -8,6 +8,7 @@ import {
 import { useGameSave } from '@shared/save';
 import { promptForWindow } from '../data/prompts';
 import { msToNextWindow, windowIndex } from '../utils/cadence';
+import { sampledIndices } from '../utils/sample';
 import { composePrompt } from '../utils/compose';
 import {
   bestWallMatch,
@@ -49,6 +50,8 @@ export function useSameBrain() {
   const [now, setNow] = useState(() => Date.now());
   const prompt = useMemo(() => promptForWindow(win), [win]);
   const nextPrompt = useMemo(() => promptForWindow(win + 1), [win]);
+  // Which option subset this window shows, per dimension (stable through a draw).
+  const display = useMemo(() => sampledIndices(prompt, win), [prompt, win]);
 
   // Local mirror of the cloud save (savedData never echoes writes — see CLAUDE.md).
   const [mirror, setMirror] = useState<SameBrainSave | undefined>(undefined);
@@ -288,6 +291,7 @@ export function useSameBrain() {
   return {
     prompt,
     nextPrompt,
+    display,
     phase,
     dimIndex,
     vector,

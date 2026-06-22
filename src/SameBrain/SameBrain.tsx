@@ -84,14 +84,16 @@ function OptionVisual({ icon, color, size = 32 }: { icon?: string; color?: strin
 
 function Intro({
   prompt,
+  previewIdx,
   onStart,
   onWall,
 }: {
   prompt: BrainPrompt;
+  previewIdx: number[];
   onStart: () => void;
   onWall: () => void;
 }) {
-  const previews = prompt.dims[0].options.slice(0, 6);
+  const previews = previewIdx.map(i => prompt.dims[0].options[i]).slice(0, 6);
   return (
     <div className="sb-intro" onPointerDown={onStart}>
       <div className="sb-intro__halo" aria-hidden />
@@ -126,11 +128,14 @@ function Intro({
 function Picker({
   prompt,
   dimIndex,
+  tiles,
   onChoose,
 }: {
   prompt: BrainPrompt;
   dimIndex: number;
-  onChoose: (i: number) => void;
+  /** Pool indices to display for this dim (a sampled subset of the full pool). */
+  tiles: number[];
+  onChoose: (poolIndex: number) => void;
 }) {
   const dim = prompt.dims[dimIndex];
   return (
@@ -142,19 +147,22 @@ function Picker({
       </div>
       <h2 className="sb-pick__ask">{loc(dim.ask)}</h2>
       <div className="sb-tiles">
-        {dim.options.map((o, i) => (
-          <button
-            key={i}
-            className="sb-tile"
-            style={{ animationDelay: `${i * 0.04}s` }}
-            onPointerDown={() => onChoose(i)}
-          >
-            <span className="sb-tile__icon">
-              <OptionVisual icon={o.icon} color={o.color} size={34} />
-            </span>
-            <span className="sb-tile__label">{loc(o.labels)}</span>
-          </button>
-        ))}
+        {tiles.map((poolIdx, i) => {
+          const o = dim.options[poolIdx];
+          return (
+            <button
+              key={poolIdx}
+              className="sb-tile"
+              style={{ animationDelay: `${i * 0.04}s` }}
+              onPointerDown={() => onChoose(poolIdx)}
+            >
+              <span className="sb-tile__icon">
+                <OptionVisual icon={o.icon} color={o.color} size={34} />
+              </span>
+              <span className="sb-tile__label">{loc(o.labels)}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -526,10 +534,20 @@ export default function SameBrain() {
           />
         )}
         {g.phase === 'intro' && (
-          <Intro prompt={g.prompt} onStart={g.start} onWall={g.openWall} />
+          <Intro
+            prompt={g.prompt}
+            previewIdx={g.display[0]}
+            onStart={g.start}
+            onWall={g.openWall}
+          />
         )}
         {g.phase === 'picking' && (
-          <Picker prompt={g.prompt} dimIndex={g.dimIndex} onChoose={g.choose} />
+          <Picker
+            prompt={g.prompt}
+            dimIndex={g.dimIndex}
+            tiles={g.display[g.dimIndex]}
+            onChoose={g.choose}
+          />
         )}
         {g.phase === 'developing' && <Developing mine={g.myVision} />}
         {g.phase === 'reveal' && (
