@@ -141,6 +141,10 @@ function Picker({
   // Briefly confirm the tapped tile before advancing, so the choice registers
   // and the next question slides in as a connected beat.
   const [picked, setPicked] = useState<number | null>(null);
+  // This component is NOT keyed per-dim (only the inner div is), so picked would
+  // otherwise leak across dimensions — a stale index could pre-select a tile and
+  // its guard would freeze the next question. Reset on every dimension change.
+  useEffect(() => setPicked(null), [dimIndex]);
   const choose = (poolIdx: number) => {
     if (picked !== null) return;
     setPicked(poolIdx);
