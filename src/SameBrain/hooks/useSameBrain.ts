@@ -6,6 +6,11 @@ import {
   useGenImage,
 } from '@shared/runtime';
 import { useGameSave } from '@shared/save';
+import {
+  appendMessage,
+  guestbookNotifyConfig,
+  newMessage,
+} from '@shared/social/guestbook';
 import { promptForWindow } from '../data/prompts';
 import { msToNextWindow, windowIndex } from '../utils/cadence';
 import { sampledIndices } from '../utils/sample';
@@ -92,6 +97,7 @@ export function useSameBrain() {
 
   const notified = useRef<Set<string>>(new Set());
   const likeNotified = useRef<Set<string>>(new Set());
+  const msgNotified = useRef<Set<string>>(new Set());
   const wallRef = useRef(wall.visions);
   wallRef.current = wall.visions;
 
@@ -135,6 +141,39 @@ export function useSameBrain() {
         }
         return next;
       });
+    },
+    [event, save],
+  );
+
+  // Leave a public note on a vision: store it in my OWN blob (the guestbook
+  // aggregates everyone's), and ping the vision's author once — never self, an
+  // alter ego, or a vision I've already pinged.
+  const sendMessage = useCallback(
+    (vision: Vision, text: string) => {
+      const msg = newMessage(vision.id, vision.userId, text);
+      if (!msg) return;
+      setMirror(prev => {
+        const next = appendMessage(prev ?? EMPTY, msg);
+        save.persist(next);
+        return next;
+      });
+      if (
+        !vision.alterEgo &&
+        vision.userId &&
+        vision.userId !== telegramId &&
+        !msgNotified.current.has(vision.id)
+      ) {
+        msgNotified.current.add(vision.id);
+        event.trigger(
+          'vision_message',
+          guestbookNotifyConfig({
+            toUserId: vision.userId,
+            refUrl: vision.imageUrl,
+            template: '{sender_name} left a note on your vision',
+            imagePrompt: 'Someone left a note on the vision you pictured.',
+          }),
+        );
+      }
     },
     [event, save],
   );
@@ -301,6 +340,10 @@ export function useSameBrain() {
     stats: mirror ?? EMPTY,
     likedIds: new Set(mirror?.likes ?? []),
     wall,
+    // Guestbook: best-effort notes from the wall + my own outgoing notes (so a
+    // just-sent note shows instantly, before the cloud write / read window).
+    messagesByTarget: wall.messagesByTarget,
+    myMessages: mirror?.messages ?? [],
     isInAigram,
     // ritual
     locked,
@@ -314,6 +357,7 @@ export function useSameBrain() {
     openWall,
     closeWall,
     likeVision,
+    sendMessage,
     retry: () => runMatch(vector),
   };
 }

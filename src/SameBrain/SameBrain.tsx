@@ -5,8 +5,9 @@ import { vectorLabel } from './utils/compose';
 import { twinsOf, type Twin } from './utils/match';
 import { frameFor, frameName } from './utils/frame';
 import { formatCountdown } from './utils/cadence';
-import { loc, t } from './i18n';
+import { loc, locale, t } from './i18n';
 import { Icon, ColorSwatch, Monogram } from './assets/icons';
+import { threadFor, timeAgo, type GuestMessage } from '@shared/social/guestbook';
 import type { Vision } from './types';
 import { promptById, type BrainPrompt } from './data/prompts';
 import './SameBrain.less';
@@ -376,25 +377,140 @@ function TwinRow({ twin, sameFrame }: { twin: Twin; sameFrame: boolean }) {
   return <div className="sb-twin">{inner}</div>;
 }
 
+// ── Guestbook (public notes left on a vision) ─────────────────────────────────
+
+function NoteAvatar({ msg, size = 22 }: { msg: GuestMessage; size?: number }) {
+  if (isUrl(msg.userAvatarUrl)) {
+    return <img className="sb-ava sb-ava--img" src={msg.userAvatarUrl} alt="" style={{ width: size, height: size }} />;
+  }
+  return <Monogram name={msg.userName || '?'} size={size} />;
+}
+
+/** One note in the thread — author chip (tappable → profile, self shows "you"),
+ *  the text, and a relative timestamp. */
+function NoteRow({ msg }: { msg: GuestMessage }) {
+  const mine = !!msg.fromUserId && msg.fromUserId === telegramId;
+  const name = mine ? t('you') : msg.userName || t('aStranger');
+  const tappable = !mine && !!msg.fromUserId;
+  const head = (
+    <span className="sb-note__head">
+      <NoteAvatar msg={msg} size={20} />
+      <span className={'sb-note__name' + (mine ? ' sb-note__name--you' : '')}>{name}</span>
+      <span className="sb-note__time">{timeAgo(msg.ts, locale)}</span>
+    </span>
+  );
+  return (
+    <div className="sb-note">
+      {tappable ? (
+        <button className="sb-note__chip" onClick={() => openAigramProfile(msg.fromUserId!)}>
+          {head}
+        </button>
+      ) : (
+        head
+      )}
+      <p className="sb-note__text">{msg.text}</p>
+    </div>
+  );
+}
+
+/** Compose box — controlled input + send. Clears on send; clicks don't bubble
+ *  up to the modal's close handler. */
+function Compose({ onSend }: { onSend: (text: string) => void }) {
+  const [text, setText] = useState('');
+  const submit = () => {
+    const t0 = text.trim();
+    if (!t0) return;
+    onSend(t0);
+    setText('');
+  };
+  return (
+    <div className="sb-compose" onClick={e => e.stopPropagation()}>
+      <input
+        className="sb-compose__input"
+        value={text}
+        maxLength={140}
+        placeholder={t('notePlaceholder')}
+        onChange={e => setText(e.target.value)}
+        onKeyDown={e => {
+          if (e.key === 'Enter') submit();
+        }}
+      />
+      <button
+        className="sb-compose__send"
+        disabled={!text.trim()}
+        aria-label={t('noteSend')}
+        onPointerDown={e => {
+          e.preventDefault();
+          submit();
+        }}
+      >
+        <Icon name="send" size={20} />
+      </button>
+    </div>
+  );
+}
+
+function Guestbook({
+  thread,
+  isInAigram,
+  onSend,
+}: {
+  thread: GuestMessage[];
+  isInAigram: boolean;
+  onSend: (text: string) => void;
+}) {
+  return (
+    <div className="sb-notes">
+      <div className="sb-notes__head">
+        {t('notesHead')}
+        {thread.length > 0 ? ' · ' + thread.length : ''}
+      </div>
+      {thread.length > 0 ? (
+        <div className="sb-notes__list">
+          {thread.map(m => (
+            <NoteRow key={m.id} msg={m} />
+          ))}
+        </div>
+      ) : (
+        <div className="sb-notes__empty">{t('noteEmpty')}</div>
+      )}
+      {isInAigram ? (
+        <Compose onSend={onSend} />
+      ) : (
+        <div className="sb-notes__signedout">{t('noteSignedOut')}</div>
+      )}
+    </div>
+  );
+}
+
 /** Zoomed-in look at one wall vision — bigger image, its tap-recipe label, the
- *  author (tappable → their Aigram profile), a heart that pings the author, and
- *  the twins: everyone else who pictured the same thing, with sync%. */
+ *  author (tappable → their Aigram profile), a heart that pings the author, the
+ *  twins (everyone else who pictured the same thing), and a public guestbook. */
 function Detail({
   vision,
   all,
   liked,
+  messagesByTarget,
+  myMessages,
+  isInAigram,
   onLike,
+  onSend,
   onClose,
 }: {
   vision: Vision;
   all: Vision[];
   liked: boolean;
+  messagesByTarget: Map<string, GuestMessage[]>;
+  myMessages: GuestMessage[];
+  isInAigram: boolean;
   onLike: () => void;
+  onSend: (vision: Vision, text: string) => void;
   onClose: () => void;
 }) {
   const label = vectorLabel(promptById(vision.promptId), vision.vector);
   const myFrame = frameFor(vision.vector);
   const twins = twinsOf(vision, all);
+  const thread = threadFor(vision.id, messagesByTarget, myMessages, telegramId ?? undefined);
   return (
     <div className="sb-detail" onClick={onClose}>
       <div className="sb-detail__box" onClick={e => e.stopPropagation()}>
@@ -425,25 +541,33 @@ function Detail({
           <span className="sb-detail__frametip">{t('frameTip')}</span>
         </div>
 
-        <div className="sb-twins">
-          <div className="sb-twins__head">
-            {twins.length > 0
-              ? t('twinsHead') + ' · ' + twins.length
-              : t('twinsHead')}
-          </div>
-          {twins.length > 0 ? (
-            <div className="sb-twins__list">
-              {twins.map(tw => (
-                <TwinRow
-                  key={tw.vision.id}
-                  twin={tw}
-                  sameFrame={frameFor(tw.vision.vector) === myFrame}
-                />
-              ))}
+        <div className="sb-detail__body">
+          <div className="sb-twins">
+            <div className="sb-twins__head">
+              {twins.length > 0
+                ? t('twinsHead') + ' · ' + twins.length
+                : t('twinsHead')}
             </div>
-          ) : (
-            <div className="sb-twins__empty">{t('twinsNone')}</div>
-          )}
+            {twins.length > 0 ? (
+              <div className="sb-twins__list">
+                {twins.map(tw => (
+                  <TwinRow
+                    key={tw.vision.id}
+                    twin={tw}
+                    sameFrame={frameFor(tw.vision.vector) === myFrame}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="sb-twins__empty">{t('twinsNone')}</div>
+            )}
+          </div>
+
+          <Guestbook
+            thread={thread}
+            isInAigram={isInAigram}
+            onSend={text => onSend(vision, text)}
+          />
         </div>
       </div>
     </div>
@@ -455,14 +579,20 @@ function Wall({
   loaded,
   isInAigram,
   likedIds,
+  messagesByTarget,
+  myMessages,
   onLike,
+  onSend,
   onBack,
 }: {
   visions: Vision[];
   loaded: boolean;
   isInAigram: boolean;
   likedIds: Set<string>;
+  messagesByTarget: Map<string, GuestMessage[]>;
+  myMessages: GuestMessage[];
   onLike: (v: Vision) => void;
+  onSend: (v: Vision, text: string) => void;
   onBack: () => void;
 }) {
   const [open, setOpen] = useState<Vision | null>(null);
@@ -503,7 +633,11 @@ function Wall({
           vision={open}
           all={visions}
           liked={likedIds.has(open.id)}
+          messagesByTarget={messagesByTarget}
+          myMessages={myMessages}
+          isInAigram={isInAigram}
           onLike={() => onLike(open)}
+          onSend={onSend}
           onClose={() => setOpen(null)}
         />
       )}
@@ -629,7 +763,10 @@ export default function SameBrain() {
             loaded={g.wall.loaded}
             isInAigram={g.isInAigram}
             likedIds={g.likedIds}
+            messagesByTarget={g.messagesByTarget}
+            myMessages={g.myMessages}
             onLike={g.likeVision}
+            onSend={g.sendMessage}
             onBack={g.closeWall}
           />
         )}

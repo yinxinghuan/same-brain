@@ -1,5 +1,7 @@
 // Same Brain — core types.
 
+import type { GuestMessage } from '@shared/social/guestbook';
+
 /** One chosen option index per dimension (length === prompt.dims.length). */
 export type Vector = number[];
 
@@ -46,6 +48,9 @@ export interface SameBrainSave {
   likes?: string[];
   /** Ritual window index of my most recent draw — gates one draw per window. */
   lastDrawWindow?: number;
+  /** Public notes I've left on visions (stored in my own blob; the guestbook
+   *  aggregates everyone's). See @shared/social/guestbook. */
+  messages?: GuestMessage[];
 }
 
 export type Phase = 'boot' | 'intro' | 'picking' | 'developing' | 'reveal' | 'wall' | 'locked';

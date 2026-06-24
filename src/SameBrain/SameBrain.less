@@ -984,10 +984,20 @@
   }
 }
 
-// ── Twins: who else pictured the same thing ──────────────
-.sb-twins {
+// ── Detail scroll body: twins + guestbook share one scroll region ────────
+.sb-detail__body {
   flex: 1 1 auto;
   min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Twins: who else pictured the same thing ──────────────
+.sb-twins {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   margin-top: 14px;
@@ -1009,14 +1019,127 @@
     padding: 6px 2px 2px;
   }
   &__list {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     gap: 8px;
+  }
+}
+
+// ── Guestbook: public notes left on a vision ─────────────
+.sb-notes {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid fade(#fff, 9%);
+  &__head {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: @dim;
+    margin-bottom: 8px;
+  }
+  &__empty,
+  &__signedout {
+    color: @dim;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 4px 2px;
+  }
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+}
+.sb-note {
+  background: fade(#fff, 5%);
+  border-radius: 12px;
+  padding: 8px 12px 9px;
+  &__chip {
+    display: inline-flex;
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  &__head {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  &__name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: @ink;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    &--you { color: @cyan; }
+  }
+  &__time {
+    font-size: 11px;
+    color: @dim;
+  }
+  &__text {
+    margin: 5px 0 0;
+    font-size: 14px;
+    line-height: 1.45;
+    color: @ink;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+}
+.sb-compose {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  &__input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid fade(#fff, 14%);
+    background: fade(#fff, 6%);
+    color: @ink;
+    font: inherit;
+    font-size: 14px;
+    outline: none;
+    -webkit-appearance: none;
+    &::placeholder { color: @dim; }
+    &:focus { border-color: fade(@pink, 70%); }
+  }
+  &__send {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg, @pink, @cyan);
+    color: #0b0b16;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+    &:active { transform: scale(0.92); }
+    &:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
   }
 }
 .sb-twin {

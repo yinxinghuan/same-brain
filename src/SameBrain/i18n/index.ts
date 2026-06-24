@@ -103,6 +103,12 @@ const STRINGS: Record<string, Loc> = {
   nextTheme: { en: 'Next theme', zh: '下一个主题', es: 'Próximo tema', pt: 'Próximo tema' },
   ritualRule: { en: 'One vision per window. A new theme opens every 3 hours.', zh: '每个窗口只显影一次，每 3 小时开启一个新主题。', es: 'Una visión por ventana. Un tema nuevo cada 3 horas.', pt: 'Uma visão por janela. Um tema novo a cada 3 horas.' },
   sealedNote: { en: 'Sealed — your one vision this window.', zh: '已封存 · 这个窗口的唯一一次显影。', es: 'Sellada — tu única visión de esta ventana.', pt: 'Selada — sua única visão desta janela.' },
+  // ── guestbook (public notes left on a vision) ──
+  notesHead: { en: 'Notes', zh: '留言', es: 'Notas', pt: 'Recados' },
+  notePlaceholder: { en: 'Leave a note…', zh: '写句留言…', es: 'Deja una nota…', pt: 'Deixe um recado…' },
+  noteSend: { en: 'Send', zh: '发送', es: 'Enviar', pt: 'Enviar' },
+  noteEmpty: { en: 'No notes yet — be the first.', zh: '还没有留言——来当第一个', es: 'Aún no hay notas — sé el primero.', pt: 'Ainda não há recados — seja o primeiro.' },
+  noteSignedOut: { en: 'Open in Aigram to leave a note.', zh: '在 Aigram 里打开才能留言', es: 'Abre en Aigram para dejar una nota.', pt: 'Abra no Aigram para deixar um recado.' },
 };
 
 export function t(key: keyof typeof STRINGS): string {

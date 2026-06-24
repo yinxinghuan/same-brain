@@ -9,6 +9,7 @@ import {
   type AigramResponse,
 } from '@shared/runtime';
 import { getGameUuid } from '@shared/runtime/game-id';
+import { messagesByTarget, type GuestMessage } from '@shared/social/guestbook';
 import { seedVisions } from '../data/seeds';
 import type { SameBrainSave, Vision } from '../types';
 
@@ -23,14 +24,19 @@ interface Profile {
   head_url?: string;
 }
 
+const EMPTY_MSGS: Map<string, GuestMessage[]> = new Map();
+
 export interface UseWall {
   visions: Vision[];
+  /** Public notes left on visions, grouped by vision id (best-effort). */
+  messagesByTarget: Map<string, GuestMessage[]>;
   loaded: boolean;
   refresh: () => void;
 }
 
 export function useWall(): UseWall {
   const [visions, setVisions] = useState<Vision[]>([]);
+  const [msgMap, setMsgMap] = useState<Map<string, GuestMessage[]>>(EMPTY_MSGS);
   const [loaded, setLoaded] = useState(false);
   const [nonce, setNonce] = useState(0);
 
@@ -70,8 +76,16 @@ export function useWall(): UseWall {
         // twin to match. Seeds carry seed:true so matching can deprioritize them.
         const limited = [...flat.slice(0, 60), ...seedVisions()];
 
-        // Resolve profiles (avatar + name) for display + tappable chips.
-        const ids = Array.from(new Set(limited.map(v => v.userId).filter(Boolean) as string[]));
+        // Public guestbook notes left on visions (best-effort, same read window).
+        const msgs = messagesByTarget(rows);
+
+        // Resolve profiles (avatar + name) for display + tappable chips — for
+        // both vision authors AND note authors.
+        const idSet = new Set(limited.map(v => v.userId).filter(Boolean) as string[]);
+        for (const list of msgs.values()) {
+          for (const m of list) if (m.fromUserId) idSet.add(m.fromUserId);
+        }
+        const ids = Array.from(idSet);
         const profEntries = await Promise.all(
           ids.map(async uid => {
             try {
@@ -94,9 +108,26 @@ export function useWall(): UseWall {
             userAvatarUrl: p?.head_url,
           };
         });
-        if (!cancelled) setVisions(withProfiles);
+        // Stamp note authors with their profile too.
+        const msgsWithProfiles = new Map<string, GuestMessage[]>();
+        for (const [target, list] of msgs) {
+          msgsWithProfiles.set(
+            target,
+            list.map(m => {
+              const p = m.fromUserId ? profMap.get(m.fromUserId) : null;
+              return { ...m, userName: p?.name, userAvatarUrl: p?.head_url };
+            }),
+          );
+        }
+        if (!cancelled) {
+          setVisions(withProfiles);
+          setMsgMap(msgsWithProfiles);
+        }
       } catch {
-        if (!cancelled) setVisions([]);
+        if (!cancelled) {
+          setVisions([]);
+          setMsgMap(EMPTY_MSGS);
+        }
       } finally {
         if (!cancelled) setLoaded(true);
       }
@@ -106,5 +137,5 @@ export function useWall(): UseWall {
     };
   }, [nonce]);
 
-  return { visions, loaded, refresh };
+  return { visions, messagesByTarget: msgMap, loaded, refresh };
 }
