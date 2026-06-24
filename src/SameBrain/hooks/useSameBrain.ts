@@ -169,6 +169,7 @@ export function useSameBrain() {
           guestbookNotifyConfig({
             toUserId: vision.userId,
             refUrl: vision.imageUrl,
+            note: text,
             template: '{sender_name} left a note on your vision',
             imagePrompt: 'Someone left a note on the vision you pictured.',
           }),
