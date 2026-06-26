@@ -542,6 +542,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-width: 0; // long-username truncation
   background: fade(#000, 40%);
   border: none;
   border-radius: 999px;
@@ -550,7 +551,15 @@
   font: inherit;
   cursor: default;
   &--accent { color: @cyan; }
-  &__name { font-size: 12px; font-weight: 700; }
+  &__name {
+    font-size: 12px;
+    font-weight: 700;
+    // long-username truncation
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   button& { cursor: pointer; }
 }
 .sb-ava {
@@ -1168,6 +1177,7 @@
   &__name {
     font-size: 13px;
     font-weight: 700;
+    min-width: 0; // long-username truncation
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
