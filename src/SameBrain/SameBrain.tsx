@@ -788,7 +788,7 @@ export default function SameBrain() {
         <div className="sb-idcard" onClick={() => setIdOpen(false)}>
           <div className="sb-idcard__box">
             <div className="sb-idcard__label">telegram_id</div>
-            <div className="sb-idcard__val">{telegramId || 'null — open inside Aigram'}</div>
+            <div className="sb-idcard__val">{telegramId || 'null — open inside AlterU'}</div>
             <div className="sb-idcard__hint">tap anywhere to close</div>
           </div>
         </div>
