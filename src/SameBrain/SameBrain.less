@@ -1311,3 +1311,20 @@
 @keyframes sb-syncpop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
 @keyframes sb-slidein-right { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes sb-tilepick { 0% { transform: scale(1); } 45% { transform: scale(1.08); } 100% { transform: scale(1.03); } }
+
+.sb-download {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+
+.sb-download a {
+  padding: 9px 14px;
+  border: 1px solid fade(@ink, 20%);
+  border-radius: 6px;
+  color: @ink;
+  background: fade(@ink, 6%);
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: 0;
+}

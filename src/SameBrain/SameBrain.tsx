@@ -12,6 +12,8 @@ import type { Vision } from './types';
 import { promptById, type BrainPrompt } from './data/prompts';
 import './SameBrain.less';
 
+const ALTERU_APP_URL = 'https://apps.apple.com/app/id6769646546';
+
 const isUrl = (s?: string) => !!s && /^https?:\/\//.test(s);
 
 /** A vision's image inside its identity frame (polaroid / film / stamp / …),
@@ -477,7 +479,12 @@ function Guestbook({
       {isInAigram ? (
         <Compose onSend={onSend} />
       ) : (
-        <div className="sb-notes__signedout">{t('noteSignedOut')}</div>
+        <div className="sb-notes__signedout sb-download">
+          <span>{t('noteSignedOut')}</span>
+          <a href={ALTERU_APP_URL} target="_blank" rel="noopener noreferrer">
+            {t('downloadAlterU')}
+          </a>
+        </div>
       )}
     </div>
   );
@@ -609,8 +616,13 @@ function Wall({
       {!loaded ? (
         <div className="sb-wall__empty">…</div>
       ) : visions.length === 0 ? (
-        <div className="sb-wall__empty">
-          {isInAigram ? t('wallEmptyFirst') : t('wallEmptyOpen')}
+        <div className={`sb-wall__empty${isInAigram ? '' : ' sb-download'}`}>
+          <span>{isInAigram ? t('wallEmptyFirst') : t('wallEmptyOpen')}</span>
+          {!isInAigram && (
+            <a href={ALTERU_APP_URL} target="_blank" rel="noopener noreferrer">
+              {t('downloadAlterU')}
+            </a>
+          )}
         </div>
       ) : (
         <div className="sb-wall__grid">

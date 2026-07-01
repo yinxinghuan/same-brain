@@ -82,7 +82,7 @@ const STRINGS: Record<string, Loc> = {
   back: { en: 'Back', zh: '返回', es: 'Atrás', pt: 'Voltar' },
   wallTitle: { en: 'Twin visions', zh: '双胞胎墙', es: 'Visiones gemelas', pt: 'Visões gêmeas' },
   wallSub: { en: 'Strangers who pictured the same thing.', zh: '想到同一画面的陌生人们', es: 'Desconocidos que imaginaron lo mismo.', pt: 'Estranhos que imaginaram a mesma coisa.' },
-  wallEmptyOpen: { en: 'Open in Aigram to see strangers sync.', zh: '在 Aigram 里打开，看陌生人同步', es: 'Abre en Aigram para ver mentes en sync.', pt: 'Abra no Aigram para ver mentes em sync.' },
+  wallEmptyOpen: { en: 'Open in AlterU to see strangers sync.', zh: '在 AlterU 中打开，看陌生人同步', es: 'Abre en AlterU para ver mentes en sync.', pt: 'Abra no AlterU para ver mentes em sync.' },
   wallEmptyFirst: { en: 'No twins yet — you could be the first.', zh: '还没有双胞胎，你可以当第一个', es: 'Aún no hay gemelos — sé el primero.', pt: 'Ainda não há gêmeos — seja o primeiro.' },
   retry: { en: 'That vision slipped away. Try again.', zh: '这幅画跑掉了，再试一次', es: 'Esa visión se escapó. Inténtalo de nuevo.', pt: 'Essa visão escapou. Tente de novo.' },
   alterEgoHead: { en: 'Meet your alter ego', zh: '遇见另一个你', es: 'Conoce a tu álter ego', pt: 'Conheça seu alter ego' },
@@ -108,7 +108,8 @@ const STRINGS: Record<string, Loc> = {
   notePlaceholder: { en: 'Leave a note…', zh: '写句留言…', es: 'Deja una nota…', pt: 'Deixe um recado…' },
   noteSend: { en: 'Send', zh: '发送', es: 'Enviar', pt: 'Enviar' },
   noteEmpty: { en: 'No notes yet — be the first.', zh: '还没有留言——来当第一个', es: 'Aún no hay notas — sé el primero.', pt: 'Ainda não há recados — seja o primeiro.' },
-  noteSignedOut: { en: 'Open in Aigram to leave a note.', zh: '在 Aigram 里打开才能留言', es: 'Abre en Aigram para dejar una nota.', pt: 'Abra no Aigram para deixar um recado.' },
+  noteSignedOut: { en: 'Open in AlterU to leave a note.', zh: '在 AlterU 中打开才能留言', es: 'Abre en AlterU para dejar una nota.', pt: 'Abra no AlterU para deixar um recado.' },
+  downloadAlterU: { en: 'Get AlterU on the App Store', zh: '下载 AlterU', es: 'Obtén AlterU en App Store', pt: 'Baixe o AlterU na App Store' },
 };
 
 export function t(key: keyof typeof STRINGS): string {
